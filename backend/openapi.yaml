@@ -1,0 +1,303 @@
+openapi: 3.0.0
+info:
+  title: StudyOS API
+  version: 1.0.0
+  description: API documentation for StudyOS Backend
+servers:
+  - url: http://localhost:3000/api
+    description: Local Development Server
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: access_token
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+    Subject:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        color:
+          type: string
+          example: "#FF0000"
+        userId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+
+security:
+  - cookieAuth: []
+
+paths:
+  /auth/register:
+    post:
+      summary: Register a new user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 6
+                name:
+                  type: string
+      responses:
+        201:
+          description: User created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  user:
+                    $ref: '#/components/schemas/User'
+        400:
+          description: Validation error or Email exists
+
+  /auth/login:
+    post:
+      summary: Login user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: Logged in successfully (Cookies set)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  user:
+                    $ref: '#/components/schemas/User'
+        401:
+          description: Invalid credentials
+
+  /auth/logout:
+    post:
+      summary: Logout user
+      responses:
+        200:
+          description: Logged out (Cookies cleared)
+
+  /auth/me:
+    get:
+      summary: Get current logged in user
+      responses:
+        200:
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                    example: true
+                  user:
+                    $ref: '#/components/schemas/User'
+        401:
+          description: Unauthorized
+
+  /subjects:
+    get:
+      summary: Get list of subjects
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            enum: [name, createdAt]
+            default: createdAt
+      responses:
+        200:
+          description: List of subjects
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Subject'
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      totalPages:
+                        type: integer
+
+    post:
+      summary: Create a new subject
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - color
+              properties:
+                name:
+                  type: string
+                color:
+                  type: string
+                  pattern: '^#[0-9A-Fa-f]{6}$'
+      responses:
+        201:
+          description: Subject created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Subject'
+
+  /subjects/{id}:
+    get:
+      summary: Get subject by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Subject details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Subject'
+        404:
+          description: Not found
+
+    patch:
+      summary: Update subject
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: 
+                  type: string
+                color:
+                  type: string
+                updatedAt:
+                  type: string
+                  format: date-time
+      responses:
+        200:
+          description: Updated subject
+        409:
+          description: Conflict (Optimistic Concurrency Control)
+
+    delete:
+      summary: Delete subject
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Subject deleted

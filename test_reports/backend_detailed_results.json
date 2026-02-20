@@ -1,9 +1,9 @@
 {
   "test_summary": {
-    "total_tests": 18,
-    "passed_tests": 13,
-    "failed_tests": 5,
-    "success_rate": "72.2%"
+    "total_tests": 35,
+    "passed_tests": 35,
+    "failed_tests": 0,
+    "success_rate": "100.0%"
   },
   "test_results": [
     {
@@ -11,127 +11,246 @@
       "success": true,
       "details": "Status: 200",
       "error": "",
-      "timestamp": "2026-02-20T15:55:57.958487"
+      "timestamp": "2026-02-20T15:56:07.784406"
     },
     {
       "test": "Health Check",
       "success": true,
       "details": "Status: 200",
       "error": "",
-      "timestamp": "2026-02-20T15:55:58.143790"
+      "timestamp": "2026-02-20T15:56:07.915975"
     },
     {
       "test": "User Registration",
-      "success": false,
-      "details": "",
-      "error": "Expected 200, got 422 - [{'type': 'value_error', 'loc': ['body', 'email'], 'msg': 'value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.', 'input': 'test_user_20260220_155558@studyos.test', 'ctx': {'reason': 'The part after the @-sign is a special-use or reserved name that cannot be used with email.'}}]",
-      "timestamp": "2026-02-20T15:55:58.274304"
+      "success": true,
+      "details": "Status: 200",
+      "error": "",
+      "timestamp": "2026-02-20T15:56:08.412573"
     },
     {
       "test": "Token received from registration",
-      "success": false,
-      "details": "",
-      "error": "No token in registration response",
-      "timestamp": "2026-02-20T15:55:58.274921"
+      "success": true,
+      "details": "Token length: 255",
+      "error": "",
+      "timestamp": "2026-02-20T15:56:08.413157"
     },
     {
       "test": "User Login",
-      "success": false,
-      "details": "",
-      "error": "Expected 200, got 422 - [{'type': 'value_error', 'loc': ['body', 'email'], 'msg': 'value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.', 'input': 'test_user_20260220_155558@studyos.test', 'ctx': {'reason': 'The part after the @-sign is a special-use or reserved name that cannot be used with email.'}}]",
-      "timestamp": "2026-02-20T15:55:58.393666"
+      "success": true,
+      "details": "Status: 200",
+      "error": "",
+      "timestamp": "2026-02-20T15:56:08.824135"
+    },
+    {
+      "test": "Token received from login",
+      "success": true,
+      "details": "Token length: 255",
+      "error": "",
+      "timestamp": "2026-02-20T15:56:08.824736"
+    },
+    {
+      "test": "Get User Profile",
+      "success": true,
+      "details": "Status: 200",
+      "error": "",
+      "timestamp": "2026-02-20T15:56:08.989186"
+    },
+    {
+      "test": "User ID received",
+      "success": true,
+      "details": "User ID: 9ae5acc7...",
+      "error": "",
+      "timestamp": "2026-02-20T15:56:08.989836"
     },
     {
       "test": "Invalid Login",
-      "success": false,
-      "details": "",
-      "error": "Expected 401, got 422 - [{'type': 'value_error', 'loc': ['body', 'email'], 'msg': 'value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.', 'input': 'test_user_20260220_155558@studyos.test', 'ctx': {'reason': 'The part after the @-sign is a special-use or reserved name that cannot be used with email.'}}]",
-      "timestamp": "2026-02-20T15:55:58.605525"
+      "success": true,
+      "details": "Status: 401",
+      "error": "",
+      "timestamp": "2026-02-20T15:56:09.335844"
     },
     {
       "test": "Duplicate Registration",
-      "success": false,
-      "details": "",
-      "error": "Expected 400, got 422 - [{'type': 'value_error', 'loc': ['body', 'email'], 'msg': 'value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.', 'input': 'test_user_20260220_155558@studyos.test', 'ctx': {'reason': 'The part after the @-sign is a special-use or reserved name that cannot be used with email.'}}]",
-      "timestamp": "2026-02-20T15:55:58.798403"
+      "success": true,
+      "details": "Status: 400",
+      "error": "",
+      "timestamp": "2026-02-20T15:56:09.519204"
     },
     {
       "test": "Get All Domains",
       "success": true,
       "details": "Status: 200",
       "error": "",
-      "timestamp": "2026-02-20T15:55:59.042751"
+      "timestamp": "2026-02-20T15:56:09.697506"
     },
     {
       "test": "Domain count validation",
       "success": true,
       "details": "Found 8 domains",
       "error": "",
-      "timestamp": "2026-02-20T15:55:59.043380"
+      "timestamp": "2026-02-20T15:56:09.698115"
     },
     {
       "test": "Domain structure validation",
       "success": true,
       "details": "All required fields present",
       "error": "",
-      "timestamp": "2026-02-20T15:55:59.043398"
+      "timestamp": "2026-02-20T15:56:09.698134"
     },
     {
       "test": "Get Domain by slug (fintech)",
       "success": true,
       "details": "Status: 200",
       "error": "",
-      "timestamp": "2026-02-20T15:55:59.257271"
+      "timestamp": "2026-02-20T15:56:09.846530"
     },
     {
       "test": "Get Domain Resources (fintech)",
       "success": true,
       "details": "Status: 200",
       "error": "",
-      "timestamp": "2026-02-20T15:55:59.407235"
+      "timestamp": "2026-02-20T15:56:09.998833"
     },
     {
       "test": "Filter Resources (foundation)",
       "success": true,
       "details": "Status: 200",
       "error": "",
-      "timestamp": "2026-02-20T15:55:59.542501"
+      "timestamp": "2026-02-20T15:56:10.127377"
     },
     {
       "test": "Invalid Domain",
       "success": true,
       "details": "Status: 404",
       "error": "",
-      "timestamp": "2026-02-20T15:55:59.677907"
+      "timestamp": "2026-02-20T15:56:10.328282"
     },
     {
       "test": "Get Domains for Resource Test",
       "success": true,
       "details": "Status: 200",
       "error": "",
-      "timestamp": "2026-02-20T15:55:59.846322"
+      "timestamp": "2026-02-20T15:56:10.460615"
     },
     {
       "test": "Get Resources for Individual Test",
       "success": true,
       "details": "Status: 200",
       "error": "",
-      "timestamp": "2026-02-20T15:56:00.006563"
+      "timestamp": "2026-02-20T15:56:10.629570"
     },
     {
       "test": "Get Individual Resource",
       "success": true,
       "details": "Status: 200",
       "error": "",
-      "timestamp": "2026-02-20T15:56:00.122789"
+      "timestamp": "2026-02-20T15:56:10.757500"
+    },
+    {
+      "test": "Upvote Resource",
+      "success": true,
+      "details": "Status: 200",
+      "error": "",
+      "timestamp": "2026-02-20T15:56:10.957091"
     },
     {
       "test": "Invalid Resource",
       "success": true,
       "details": "Status: 404",
       "error": "",
-      "timestamp": "2026-02-20T15:56:00.230388"
+      "timestamp": "2026-02-20T15:56:11.093872"
+    },
+    {
+      "test": "Get User Progress",
+      "success": true,
+      "details": "Status: 200",
+      "error": "",
+      "timestamp": "2026-02-20T15:56:11.227745"
+    },
+    {
+      "test": "Start Domain",
+      "success": true,
+      "details": "Status: 200",
+      "error": "",
+      "timestamp": "2026-02-20T15:56:11.428804"
+    },
+    {
+      "test": "Get Domain Resources for Progress",
+      "success": true,
+      "details": "Status: 200",
+      "error": "",
+      "timestamp": "2026-02-20T15:56:11.550845"
+    },
+    {
+      "test": "Complete Resource",
+      "success": true,
+      "details": "Status: 200",
+      "error": "",
+      "timestamp": "2026-02-20T15:56:11.673782"
+    },
+    {
+      "test": "Get Personal Plan",
+      "success": true,
+      "details": "Status: 200",
+      "error": "",
+      "timestamp": "2026-02-20T15:56:11.823489"
+    },
+    {
+      "test": "Get Domains for Plan Test",
+      "success": true,
+      "details": "Status: 200",
+      "error": "",
+      "timestamp": "2026-02-20T15:56:11.944167"
+    },
+    {
+      "test": "Get Resources for Plan Test",
+      "success": true,
+      "details": "Status: 200",
+      "error": "",
+      "timestamp": "2026-02-20T15:56:12.123400"
+    },
+    {
+      "test": "Add to Personal Plan",
+      "success": true,
+      "details": "Status: 200",
+      "error": "",
+      "timestamp": "2026-02-20T15:56:12.272055"
+    },
+    {
+      "test": "Add Duplicate to Plan",
+      "success": true,
+      "details": "Status: 400",
+      "error": "",
+      "timestamp": "2026-02-20T15:56:12.403903"
+    },
+    {
+      "test": "Complete Plan Item",
+      "success": true,
+      "details": "Status: 200",
+      "error": "",
+      "timestamp": "2026-02-20T15:56:12.581743"
+    },
+    {
+      "test": "Remove from Plan",
+      "success": true,
+      "details": "Status: 200",
+      "error": "",
+      "timestamp": "2026-02-20T15:56:12.728981"
+    },
+    {
+      "test": "Get User Stats",
+      "success": true,
+      "details": "Status: 200",
+      "error": "",
+      "timestamp": "2026-02-20T15:56:12.858085"
+    },
+    {
+      "test": "User stats structure",
+      "success": true,
+      "details": "All required stats present",
+      "error": "",
+      "timestamp": "2026-02-20T15:56:12.858742"
     }
   ],
-  "timestamp": "2026-02-20T15:56:00.231039"
+  "timestamp": "2026-02-20T15:56:12.858770"
 }

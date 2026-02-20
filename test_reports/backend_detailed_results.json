@@ -1,0 +1,137 @@
+{
+  "test_summary": {
+    "total_tests": 18,
+    "passed_tests": 13,
+    "failed_tests": 5,
+    "success_rate": "72.2%"
+  },
+  "test_results": [
+    {
+      "test": "API Root",
+      "success": true,
+      "details": "Status: 200",
+      "error": "",
+      "timestamp": "2026-02-20T15:55:57.958487"
+    },
+    {
+      "test": "Health Check",
+      "success": true,
+      "details": "Status: 200",
+      "error": "",
+      "timestamp": "2026-02-20T15:55:58.143790"
+    },
+    {
+      "test": "User Registration",
+      "success": false,
+      "details": "",
+      "error": "Expected 200, got 422 - [{'type': 'value_error', 'loc': ['body', 'email'], 'msg': 'value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.', 'input': 'test_user_20260220_155558@studyos.test', 'ctx': {'reason': 'The part after the @-sign is a special-use or reserved name that cannot be used with email.'}}]",
+      "timestamp": "2026-02-20T15:55:58.274304"
+    },
+    {
+      "test": "Token received from registration",
+      "success": false,
+      "details": "",
+      "error": "No token in registration response",
+      "timestamp": "2026-02-20T15:55:58.274921"
+    },
+    {
+      "test": "User Login",
+      "success": false,
+      "details": "",
+      "error": "Expected 200, got 422 - [{'type': 'value_error', 'loc': ['body', 'email'], 'msg': 'value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.', 'input': 'test_user_20260220_155558@studyos.test', 'ctx': {'reason': 'The part after the @-sign is a special-use or reserved name that cannot be used with email.'}}]",
+      "timestamp": "2026-02-20T15:55:58.393666"
+    },
+    {
+      "test": "Invalid Login",
+      "success": false,
+      "details": "",
+      "error": "Expected 401, got 422 - [{'type': 'value_error', 'loc': ['body', 'email'], 'msg': 'value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.', 'input': 'test_user_20260220_155558@studyos.test', 'ctx': {'reason': 'The part after the @-sign is a special-use or reserved name that cannot be used with email.'}}]",
+      "timestamp": "2026-02-20T15:55:58.605525"
+    },
+    {
+      "test": "Duplicate Registration",
+      "success": false,
+      "details": "",
+      "error": "Expected 400, got 422 - [{'type': 'value_error', 'loc': ['body', 'email'], 'msg': 'value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.', 'input': 'test_user_20260220_155558@studyos.test', 'ctx': {'reason': 'The part after the @-sign is a special-use or reserved name that cannot be used with email.'}}]",
+      "timestamp": "2026-02-20T15:55:58.798403"
+    },
+    {
+      "test": "Get All Domains",
+      "success": true,
+      "details": "Status: 200",
+      "error": "",
+      "timestamp": "2026-02-20T15:55:59.042751"
+    },
+    {
+      "test": "Domain count validation",
+      "success": true,
+      "details": "Found 8 domains",
+      "error": "",
+      "timestamp": "2026-02-20T15:55:59.043380"
+    },
+    {
+      "test": "Domain structure validation",
+      "success": true,
+      "details": "All required fields present",
+      "error": "",
+      "timestamp": "2026-02-20T15:55:59.043398"
+    },
+    {
+      "test": "Get Domain by slug (fintech)",
+      "success": true,
+      "details": "Status: 200",
+      "error": "",
+      "timestamp": "2026-02-20T15:55:59.257271"
+    },
+    {
+      "test": "Get Domain Resources (fintech)",
+      "success": true,
+      "details": "Status: 200",
+      "error": "",
+      "timestamp": "2026-02-20T15:55:59.407235"
+    },
+    {
+      "test": "Filter Resources (foundation)",
+      "success": true,
+      "details": "Status: 200",
+      "error": "",
+      "timestamp": "2026-02-20T15:55:59.542501"
+    },
+    {
+      "test": "Invalid Domain",
+      "success": true,
+      "details": "Status: 404",
+      "error": "",
+      "timestamp": "2026-02-20T15:55:59.677907"
+    },
+    {
+      "test": "Get Domains for Resource Test",
+      "success": true,
+      "details": "Status: 200",
+      "error": "",
+      "timestamp": "2026-02-20T15:55:59.846322"
+    },
+    {
+      "test": "Get Resources for Individual Test",
+      "success": true,
+      "details": "Status: 200",
+      "error": "",
+      "timestamp": "2026-02-20T15:56:00.006563"
+    },
+    {
+      "test": "Get Individual Resource",
+      "success": true,
+      "details": "Status: 200",
+      "error": "",
+      "timestamp": "2026-02-20T15:56:00.122789"
+    },
+    {
+      "test": "Invalid Resource",
+      "success": true,
+      "details": "Status: 404",
+      "error": "",
+      "timestamp": "2026-02-20T15:56:00.230388"
+    }
+  ],
+  "timestamp": "2026-02-20T15:56:00.231039"
+}

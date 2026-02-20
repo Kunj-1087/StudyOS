@@ -99,7 +99,7 @@ class StudyOSAPITester:
         
         # Generate unique test credentials
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        test_email = f"test_user_{timestamp}@studyos.test"
+        test_email = f"test_user_{timestamp}@gmail.com"
         test_password = "TestPass123!"
         test_name = f"Test User {timestamp}"
 

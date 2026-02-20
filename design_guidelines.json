@@ -1,0 +1,148 @@
+{
+  "identity": {
+    "name": "E1",
+    "persona": "The Anti-AI Designer",
+    "mission": "Create a tactical, elite Academic Intelligence System that feels like a high-frequency trading terminal for careers.",
+    "principles": [
+      "Fusion over Imitation: Mix Fintech Trading + Cyber Warfare + Academic Rigor.",
+      "Emotion First: The user should feel like an 'Operator' in a command center.",
+      "Content is King: Data density is the aesthetic. No fluff.",
+      "Zoom In: Focus on the 'Signal' (high-value metrics).",
+      "Negative Space: Use it to group data, not just for air.",
+      "Contrast: High contrast for readability in dark mode."
+    ]
+  },
+  "theme": {
+    "name": "Tactical Operator",
+    "mode": "dark",
+    "mood": "Cinematic, Data-Dense, Elite, Cyber-Physical",
+    "keywords": ["Command Center", "Intelligence", "Signal", "Vector", "Protocol", "Terminal"]
+  },
+  "colors": {
+    "background": "#0D0F14",
+    "surface": "#13161C",
+    "surface_highlight": "#1A1D24",
+    "primary": "#00C2FF",
+    "primary_dim": "rgba(0, 194, 255, 0.1)",
+    "secondary": "#16F2A5",
+    "accent": "#FF3366",
+    "text": {
+      "primary": "#E2E8F0",
+      "secondary": "#94A3B8",
+      "muted": "#64748B",
+      "inverse": "#0D0F14"
+    },
+    "border": {
+      "default": "rgba(255, 255, 255, 0.1)",
+      "active": "#00C2FF",
+      "subtle": "rgba(255, 255, 255, 0.05)"
+    },
+    "status": {
+      "success": "#16F2A5",
+      "warning": "#F59E0B",
+      "error": "#FF3366",
+      "info": "#00C2FF"
+    }
+  },
+  "typography": {
+    "font_family": {
+      "heading": "\"Barlow Condensed\", sans-serif",
+      "body": "\"Inter\", sans-serif",
+      "mono": "\"JetBrains Mono\", monospace"
+    },
+    "scale": {
+      "h1": "text-5xl font-bold tracking-tight uppercase",
+      "h2": "text-3xl font-bold tracking-tight uppercase",
+      "h3": "text-xl font-semibold tracking-wide uppercase",
+      "body": "text-base font-normal leading-relaxed",
+      "mono": "text-sm font-mono tracking-wide"
+    },
+    "instructions": "Use Barlow Condensed for all headings to give a 'military/industrial' feel. Use JetBrains Mono for all data, numbers, and code snippets. Use Inter for long-form reading text."
+  },
+  "layout": {
+    "grid_system": {
+      "landing": "Mode A: The Tetris Grid (12 columns, mixed spans)",
+      "dashboard": "Mode B: High Density Grid (4 columns, tight gaps)"
+    },
+    "spacing": {
+      "base": "1rem",
+      "container_padding": "p-6 md:p-8 lg:p-12",
+      "section_gap": "gap-8"
+    },
+    "border_radius": "rounded-sm",
+    "container_width": "max-w-7xl mx-auto"
+  },
+  "components": {
+    "buttons": {
+      "style": "sharp",
+      "variants": {
+        "primary": "bg-primary text-black hover:bg-primary/90 font-bold uppercase tracking-wider rounded-sm",
+        "secondary": "border border-primary/50 text-primary hover:bg-primary/10 font-bold uppercase tracking-wider rounded-sm",
+        "ghost": "text-muted-foreground hover:text-white hover:bg-white/5 uppercase tracking-wider rounded-sm"
+      }
+    },
+    "cards": {
+      "style": "technical",
+      "base": "bg-surface border border-white/5 hover:border-primary/50 transition-colors duration-300 rounded-sm relative overflow-hidden",
+      "content": "p-6 relative z-10"
+    },
+    "inputs": {
+      "style": "minimal",
+      "base": "bg-black/20 border-b border-white/20 focus:border-primary text-white placeholder-white/30 rounded-none px-0 py-2 transition-colors"
+    },
+    "navigation": {
+      "style": "glass",
+      "base": "fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md border-b border-white/5"
+    }
+  },
+  "visual_enhancers": {
+    "effects": [
+      {
+        "name": "Scanlines",
+        "css": "background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); background-size: 100% 2px, 3px 100%; pointer-events: none;"
+      },
+      {
+        "name": "Glow Text",
+        "css": "text-shadow: 0 0 10px rgba(0, 194, 255, 0.5);"
+      },
+      {
+        "name": "Tech Border",
+        "css": "position: relative; &::after { content: ''; position: absolute; bottom: 0; right: 0; width: 10px; height: 10px; border-right: 2px solid #00C2FF; border-bottom: 2px solid #00C2FF; }"
+      }
+    ]
+  },
+  "assets": {
+    "images": {
+      "background": [
+        "https://images.pexels.com/photos/17489151/pexels-photo-17489151.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "https://images.pexels.com/photos/17323801/pexels-photo-17323801.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
+      ],
+      "domains": [
+        "https://images.pexels.com/photos/32299899/pexels-photo-32299899.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "https://images.pexels.com/photos/32299962/pexels-photo-32299962.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
+      ]
+    },
+    "icons": "Use 'lucide-react' for all iconography. Prefer sharp, geometric icons (e.g., 'Square', 'Triangle', 'Activity', 'Terminal', 'Cpu'). Avoid rounded/soft icons."
+  },
+  "motion": {
+    "preset": "tactical",
+    "definitions": {
+      "hover": "scale-[1.02] border-primary/50",
+      "tap": "scale-[0.98]",
+      "enter": "opacity-0 translate-y-4 -> opacity-100 translate-y-0 (duration-500 ease-out)"
+    }
+  },
+  "universal_guidelines": [
+    "DO NOT use purple or teal for CTAs. Use Electric Blue (#00C2FF) or Neon Green (#16F2A5).",
+    "DO NOT use Inter for Headings. Use Barlow Condensed.",
+    "DO NOT center everything. Use asymmetry and grid alignment.",
+    "DO NOT use gradients > 20% opacity. Keep it matte/flat with subtle noise.",
+    "DO NOT use rounded buttons (rounded-full). Use sharp (rounded-sm) or pill (rounded-none).",
+    "ALWAYS add 'data-testid' to interactive elements.",
+    "ALWAYS use 'sonner' for toasts.",
+    "ALWAYS use 'lucide-react' for icons.",
+    "Marketing Pages: Custom HTML/Tailwind. Dashboards: Customized Shadcn.",
+    "Use 'lenis' for smooth scrolling on marketing pages."
+  ],
+  "instructions_to_main_agent": "You are building a Tactical Academic Intelligence System. Think 'Bloomberg Terminal meets Cyberpunk'. Your goal is to make the user feel like an elite operator. Use the provided color palette strictly. Use the provided fonts. Follow the layout rules. When in doubt, make it look 'technical' and 'dense' rather than 'clean' and 'simple'."
+}

@@ -1,34 +1,399 @@
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
-}
+/* studyOS App Styles */
 
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
-}
-
-.App-header {
-    background-color: #0f0f10;
+/* Landing Page Hero */
+.hero-section {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-background {
+    position: absolute;
+    inset: 0;
+    background: 
+        radial-gradient(ellipse at 30% 20%, rgba(0, 194, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 80%, rgba(22, 242, 165, 0.05) 0%, transparent 50%),
+        linear-gradient(180deg, #0D0F14 0%, #13161C 100%);
+}
+
+.hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image: 
+        linear-gradient(rgba(0, 194, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 194, 255, 0.05) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+}
+
+/* System Status Indicator */
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #16F2A5;
+    animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(22, 242, 165, 0.5); }
+    50% { opacity: 0.8; box-shadow: 0 0 0 8px rgba(22, 242, 165, 0); }
+}
+
+/* Domain Grid */
+.domain-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Resource Grid */
+.resource-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+/* Difficulty Indicator */
+.difficulty-bar {
+    display: flex;
+    gap: 2px;
+}
+
+.difficulty-segment {
+    width: 12px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 1px;
+}
+
+.difficulty-segment.active {
+    background: #00C2FF;
+}
+
+.difficulty-segment.active.high {
+    background: #FF3366;
+}
+
+.difficulty-segment.active.medium {
+    background: #F59E0B;
+}
+
+/* Market Demand Circle */
+.demand-circle {
+    position: relative;
+    width: 60px;
+    height: 60px;
+}
+
+.demand-circle svg {
+    transform: rotate(-90deg);
+}
+
+.demand-circle-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.1);
+    stroke-width: 4;
+}
+
+.demand-circle-progress {
+    fill: none;
+    stroke: #00C2FF;
+    stroke-width: 4;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.5s ease;
+}
+
+.demand-value {
+    position: absolute;
+    inset: 0;
+    display: flex;
     align-items: center;
     justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
 }
 
-.App-link {
-    color: #61dafb;
+/* Skill Matrix */
+.skill-matrix {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
-@keyframes App-logo-spin {
-    from {
-        transform: rotate(0deg);
+.skill-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.skill-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.skill-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: #E2E8F0;
+}
+
+.skill-level {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #64748B;
+}
+
+/* Tool Stack Grid */
+.tool-stack-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.75rem;
+}
+
+.tool-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.tool-item:hover {
+    background: rgba(0, 194, 255, 0.05);
+    border-color: rgba(0, 194, 255, 0.2);
+}
+
+.tool-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 194, 255, 0.1);
+    border-radius: 2px;
+    color: #00C2FF;
+}
+
+.tool-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.tool-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #E2E8F0;
+}
+
+.tool-category {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    color: #64748B;
+}
+
+/* Execution Timeline */
+.execution-timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.execution-timeline::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: linear-gradient(180deg, #00C2FF 0%, #16F2A5 100%);
+}
+
+.timeline-step {
+    position: relative;
+    padding-bottom: 2rem;
+}
+
+.timeline-step:last-child {
+    padding-bottom: 0;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -2rem;
+    top: 4px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #0D0F14;
+    border: 2px solid #00C2FF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #00C2FF;
+}
+
+/* Profile Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
     }
-    to {
-        transform: rotate(360deg);
-    }
+}
+
+/* Activity Graph */
+.activity-graph {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 80px;
+}
+
+.activity-bar {
+    flex: 1;
+    background: linear-gradient(180deg, #00C2FF 0%, rgba(0, 194, 255, 0.3) 100%);
+    border-radius: 2px 2px 0 0;
+    transition: height 0.3s ease;
+}
+
+/* Navigation */
+.nav-fixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: rgba(13, 15, 20, 0.8);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Page Transitions */
+.page-enter {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.page-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Category Tabs */
+.category-tabs {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+}
+
+.category-tab {
+    padding: 0.5rem 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748B;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+}
+
+.category-tab:hover {
+    color: #E2E8F0;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.category-tab.active {
+    color: #00C2FF;
+    background: rgba(0, 194, 255, 0.1);
+    border-color: rgba(0, 194, 255, 0.3);
+}
+
+/* Auth Modal */
+.auth-modal {
+    background: #13161C;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    padding: 2rem;
+    max-width: 400px;
+    width: 100%;
+}
+
+.auth-tabs {
+    display: flex;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.auth-tab {
+    flex: 1;
+    padding: 1rem;
+    text-align: center;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #64748B;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.auth-tab.active {
+    color: #00C2FF;
+    border-bottom: 2px solid #00C2FF;
+}
+
+/* Loading Spinner */
+.spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid rgba(0, 194, 255, 0.2);
+    border-top-color: #00C2FF;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Toast overrides for sonner */
+[data-sonner-toast] {
+    font-family: 'JetBrains Mono', monospace !important;
+    background: #13161C !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }

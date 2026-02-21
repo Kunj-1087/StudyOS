@@ -73,16 +73,29 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     return encoded_jwt
 
 def decode_token(token: str) -> Optional[TokenData]:
-    """Decode and validate a JWT token."""
+    """Decode and validate a JWT token (supports both local and Supabase)."""
     try:
+        # 1. Try local JWT first
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id: str = payload.get("user_id")
-        email: str = payload.get("email")
-        role: str = payload.get("role")
-        
-        if user_id is None or email is None:
-            return None
-        
-        return TokenData(user_id=user_id, email=email, role=role)
+        return TokenData(
+            user_id=payload.get("user_id"),
+            email=payload.get("email"),
+            role=payload.get("role", "student")
+        )
     except JWTError:
+        # 2. Fallback: Try verifying as a Supabase token
+        try:
+            from database import get_supabase
+            sb = get_supabase()
+            user_res = sb.auth.get_user(token)
+            if user_res and user_res.user:
+                return TokenData(
+                    user_id=user_res.user.id,
+                    email=user_res.user.email,
+                    role="student" # Default role for Supabase users
+                )
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).error(f"Supabase token verification failed: {e}")
+            pass
         return None

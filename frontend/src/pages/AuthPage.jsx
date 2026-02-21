@@ -43,7 +43,8 @@ export default function AuthPage() {
             }
             navigate('/hub');
         } catch (err) {
-            const message = err.response?.data?.detail || 'Authentication failed';
+            console.error('Auth error detailed:', err);
+            const message = err.response?.data?.detail || err.message || 'Authentication failed';
             setError(message);
             toast.error(message);
         } finally {

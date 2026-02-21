@@ -117,12 +117,36 @@ CREATE TABLE IF NOT EXISTS public.personal_plan_items (
 
 CREATE INDEX IF NOT EXISTS idx_plan_user_id ON public.personal_plan_items(user_id);
 
--- ── Disable Row-Level Security (backend uses service key) ─────────────────────
-ALTER TABLE public.users               DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.domains             DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.resources           DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.user_progress       DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.personal_plan_items DISABLE ROW LEVEL SECURITY;
+-- ── Enable Row-Level Security ──────────────────────────────────────────────
+ALTER TABLE public.users               ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.domains             ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.resources           ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_progress       ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.personal_plan_items ENABLE ROW LEVEL SECURITY;
+
+-- ── Policies ─────────────────────────────────────────────────────────────────
+
+-- Users: read own data, insert own data (on register), update own data
+CREATE POLICY "Users can read own data" ON public.users FOR SELECT USING (auth.uid()::text = id);
+CREATE POLICY "Users can insert own data" ON public.users FOR INSERT WITH CHECK (auth.uid()::text = id);
+CREATE POLICY "Users can update own data" ON public.users FOR UPDATE USING (auth.uid()::text = id);
+
+-- Domains: publicly readable
+CREATE POLICY "Domains are publicly readable" ON public.domains FOR SELECT USING (true);
+
+-- Resources: publicly readable
+CREATE POLICY "Resources are publicly readable" ON public.resources FOR SELECT USING (true);
+
+-- User Progress: read/write own progress
+CREATE POLICY "Users can read own progress" ON public.user_progress FOR SELECT USING (auth.uid()::text = user_id);
+CREATE POLICY "Users can insert own progress" ON public.user_progress FOR INSERT WITH CHECK (auth.uid()::text = user_id);
+CREATE POLICY "Users can update own progress" ON public.user_progress FOR UPDATE USING (auth.uid()::text = user_id);
+
+-- Personal Plan: read/write/delete own items
+CREATE POLICY "Users can read own plan" ON public.personal_plan_items FOR SELECT USING (auth.uid()::text = user_id);
+CREATE POLICY "Users can insert own plan" ON public.personal_plan_items FOR INSERT WITH CHECK (auth.uid()::text = user_id);
+CREATE POLICY "Users can update own plan" ON public.personal_plan_items FOR UPDATE USING (auth.uid()::text = user_id);
+CREATE POLICY "Users can delete own plan" ON public.personal_plan_items FOR DELETE USING (auth.uid()::text = user_id);
 
 -- Done!
 SELECT 'studyOS schema created successfully 🎉' AS status;

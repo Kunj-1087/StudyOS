@@ -11,6 +11,9 @@ import ToolkitPage from "./pages/ToolkitPage";
 import ProfilePage from "./pages/ProfilePage";
 import AuthPage from "./pages/AuthPage";
 
+// Components
+import { ProtectedRoute } from "./components/ProtectedRoute";
+
 function App() {
     return (
         <AuthProvider>
@@ -18,10 +21,26 @@ function App() {
                 <BrowserRouter>
                     <Routes>
                         <Route path="/" element={<LandingPage />} />
-                        <Route path="/hub" element={<HubPage />} />
-                        <Route path="/domain/:slug" element={<DomainPage />} />
-                        <Route path="/domain/:slug/toolkit" element={<ToolkitPage />} />
-                        <Route path="/profile" element={<ProfilePage />} />
+                        <Route path="/hub" element={
+                            <ProtectedRoute>
+                                <HubPage />
+                            </ProtectedRoute>
+                        } />
+                        <Route path="/domain/:slug" element={
+                            <ProtectedRoute>
+                                <DomainPage />
+                            </ProtectedRoute>
+                        } />
+                        <Route path="/domain/:slug/toolkit" element={
+                            <ProtectedRoute>
+                                <ToolkitPage />
+                            </ProtectedRoute>
+                        } />
+                        <Route path="/profile" element={
+                            <ProtectedRoute>
+                                <ProfilePage />
+                            </ProtectedRoute>
+                        } />
                         <Route path="/auth" element={<AuthPage />} />
                     </Routes>
                 </BrowserRouter>

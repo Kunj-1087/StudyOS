@@ -195,16 +195,25 @@ async def health_check():
 
 # ── Auth Routes ──────────────────────────────────────────────────────────────
 @api_router.post("/auth/register", response_model=Token)
-async def register(data: UserRegister):
+async def register(data: UserRegister, current_user: Optional[dict] = Depends(get_current_user)):
     try:
+        # If we already have a current_user (from Supabase token), use its ID
+        pre_existing_id = current_user.get("id") if current_user else None
+        
         if USE_SUPABASE:
             sb = get_supabase()
-            # Check existing
-            existing = sb.table("users").select("id").eq("email", data.email).execute()
-            if existing.data:
-                raise HTTPException(status_code=400, detail="Email already registered")
+            logger.info(f"Attempting registration/sync for email: {data.email}")
             
-            user_id = str(uuid.uuid4())
+            # Check existing explicitly by email
+            existing = sb.table("users").select("*").eq("email", data.email).execute()
+            if existing.data:
+                # If it already exists, just return a token for it
+                user = existing.data[0]
+                token = create_access_token({"user_id": user["id"], "email": user["email"], "role": user.get("role", "student")})
+                return Token(access_token=token, token_type="bearer", expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60)
+            
+            # Otherwise create new record. Use pre_existing_id from Supabase token if available.
+            user_id = pre_existing_id or str(uuid.uuid4())
             now = now_iso()
             user_row = {
                 "id": user_id,
@@ -213,7 +222,7 @@ async def register(data: UserRegister):
                 "name": data.name,
                 "avatar_url": None,
                 "role": "student",
-                "auth_provider": "email",
+                "auth_provider": "supabase" if pre_existing_id else "email",
                 "skill_index": 0.0,
                 "reputation_score": 0,
                 "contribution_count": 0,
@@ -222,12 +231,14 @@ async def register(data: UserRegister):
                 "updated_at": now,
                 "last_login": now
             }
+            logger.info(f"Inserting user record for {data.email} with ID: {user_id}")
             sb.table("users").insert(user_row).execute()
         else:
+            # In-memory fallback
             for u in users_db.values():
                 if u["email"] == data.email:
                     raise HTTPException(status_code=400, detail="Email already registered")
-            user_id = str(uuid.uuid4())
+            user_id = pre_existing_id or str(uuid.uuid4())
             now = now_iso()
             users_db[user_id] = {
                 "id": user_id, "email": data.email,
@@ -238,7 +249,7 @@ async def register(data: UserRegister):
                 "execution_score": 0.0, "created_at": now,
                 "updated_at": now, "last_login": now
             }
-
+            
         token = create_access_token({"user_id": user_id, "email": data.email, "role": "student"})
         return Token(access_token=token, token_type="bearer", expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60)
     except HTTPException:

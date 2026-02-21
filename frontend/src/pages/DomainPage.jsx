@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Navigation } from '../components/Navigation';
 import { SkillBar } from '../components/StatsComponents';
 import { domainsApi, progressApi } from '../lib/api';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
 import {
     ArrowLeft, ExternalLink, ChevronRight, Clock, DollarSign,

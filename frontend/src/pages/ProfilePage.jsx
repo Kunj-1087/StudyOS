@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Navigation } from '../components/Navigation';
 import { StatBlock, ProgressRing, ActivityGraph } from '../components/StatsComponents';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import { userApi, planApi } from '../lib/api';
 import { toast } from 'sonner';
 import {

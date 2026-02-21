@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Navigation } from '../components/Navigation';
 import { ResourceCard } from '../components/ResourceCard';
 import { domainsApi, planApi, progressApi } from '../lib/api';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
 import { ArrowLeft, ChevronRight, Filter, BookOpen } from 'lucide-react';
 

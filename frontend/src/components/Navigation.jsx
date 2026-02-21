@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { 
-    Terminal, 
     User, 
     LogOut, 
     Menu, 
@@ -43,15 +42,15 @@ export function Navigation() {
                     {/* Logo */}
                     <Link 
                         to="/" 
-                        className="flex items-center gap-3 group"
+                        className="flex items-center"
                         data-testid="nav-logo"
                     >
-                        <div className="w-8 h-8 bg-primary/10 border border-primary/30 rounded-sm flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                            <Terminal className="w-4 h-4 text-primary" />
-                        </div>
-                        <span className="font-heading text-lg tracking-wider text-white">
-                            STUDY<span className="text-primary">OS</span>
-                        </span>
+                        <img
+                            src="/assets/studyos-logo.svg"
+                            alt="StudyOS"
+                            className="logo-glow"
+                            style={{ height: '30px', width: 'auto' }}
+                        />
                     </Link>
 
                     {/* Desktop Nav */}

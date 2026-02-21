@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
+// Vite uses import.meta.env.VITE_* — falls back to '' which is forwarded
+// by the Vite dev-server proxy to http://localhost:8001
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
+const API_URL = `${BACKEND_URL}/api`;
 
 // Create axios instance
 const api = axios.create({

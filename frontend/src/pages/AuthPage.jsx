@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Terminal, ChevronRight, AlertCircle } from 'lucide-react';
+import { ChevronRight, AlertCircle } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -58,13 +58,13 @@ export default function AuthPage() {
 
             <div className="relative z-10 w-full max-w-md">
                 {/* Logo */}
-                <div className="flex items-center justify-center gap-3 mb-8">
-                    <div className="w-12 h-12 bg-primary/10 border border-primary/30 rounded-sm flex items-center justify-center">
-                        <Terminal className="w-6 h-6 text-primary" />
-                    </div>
-                    <span className="font-heading text-2xl tracking-wider text-white">
-                        STUDY<span className="text-primary">OS</span>
-                    </span>
+                <div className="flex items-center justify-center mb-8">
+                    <img
+                        src="/assets/studyos-logo.svg"
+                        alt="StudyOS — Academic Intelligence System"
+                        className="logo-glow"
+                        style={{ height: '44px', width: 'auto' }}
+                    />
                 </div>
 
                 {/* Auth Card */}

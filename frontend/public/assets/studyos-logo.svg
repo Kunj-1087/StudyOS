@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 44" fill="none" role="img" aria-label="StudyOS Academic Intelligence System">
+  <title>StudyOS</title>
+
+  <!-- ═══════════════════════════════════════════════
+       ICON — 44×44 grid: tactical "S" formed by
+       stacked data-node segments + connector lines
+  ════════════════════════════════════════════════ -->
+
+  <!-- Outer border frame -->
+  <rect x="1" y="1" width="42" height="42" rx="0" ry="0"
+        stroke="#00C2FF" stroke-width="1.2" stroke-opacity="0.35" fill="none"/>
+
+  <!-- Corner accent ticks (top-left, top-right, bottom-left, bottom-right) -->
+  <polyline points="1,9 1,1 9,1"   stroke="#00C2FF" stroke-width="1.8" fill="none"/>
+  <polyline points="35,1 43,1 43,9" stroke="#00C2FF" stroke-width="1.8" fill="none"/>
+  <polyline points="1,35 1,43 9,43" stroke="#00C2FF" stroke-width="1.8" fill="none"/>
+  <polyline points="35,43 43,43 43,35" stroke="#00C2FF" stroke-width="1.8" fill="none"/>
+
+  <!-- ── TOP DATA BLOCK (3 stacked thin bars, right-aligned)  ── -->
+  <rect x="14" y="9"  width="16" height="3" rx="0" fill="#00C2FF" opacity="0.9"/>
+  <rect x="18" y="14" width="12" height="3" rx="0" fill="#00C2FF" opacity="0.65"/>
+  <rect x="22" y="19" width="8"  height="3" rx="0" fill="#00C2FF" opacity="0.40"/>
+
+  <!-- ── VERTICAL SPINE (center) ── -->
+  <line x1="22" y1="9" x2="22" y2="35" stroke="#00C2FF" stroke-width="0.8" stroke-opacity="0.2" stroke-dasharray="2 3"/>
+
+  <!-- ── S-CURVE CONNECTOR (sharp polyline, not bezier) ── -->
+  <!-- Top horizontal, bend, bottom horizontal — forming angular "S" -->
+  <polyline
+    points="28,11 32,11 32,22 12,22 12,33 28,33"
+    stroke="#00C2FF" stroke-width="1.6" fill="none" stroke-linecap="square" stroke-linejoin="miter"
+  />
+
+  <!-- ── BOTTOM DATA BLOCK (3 stacked, left-aligned, mirror of top) ── -->
+  <rect x="14" y="22" width="8"  height="3" rx="0" fill="#00C2FF" opacity="0.40"/>
+  <rect x="14" y="27" width="12" height="3" rx="0" fill="#00C2FF" opacity="0.65"/>
+  <rect x="14" y="32" width="16" height="3" rx="0" fill="#00C2FF" opacity="0.9"/>
+
+  <!-- Node dots at key joints -->
+  <circle cx="28" cy="11" r="1.8" fill="#00C2FF"/>
+  <circle cx="12" cy="33" r="1.8" fill="#00C2FF"/>
+  <circle cx="32" cy="22" r="1.4" fill="#00C2FF" opacity="0.6"/>
+  <circle cx="12" cy="22" r="1.4" fill="#00C2FF" opacity="0.6"/>
+
+  <!-- ═══════════════════════════════════════════════
+       WORDMARK — STUDYOS  (STUDY white, OS cyan)
+       x-offset: 60 (icon 44 + gap 16)
+  ════════════════════════════════════════════════ -->
+  <text
+    x="58" y="28"
+    font-family="'Iceland', 'Arial Narrow', sans-serif"
+    font-size="26"
+    font-weight="400"
+    letter-spacing="3"
+    fill="#FFFFFF"
+    text-rendering="geometricPrecision"
+  >STUDY<tspan fill="#00C2FF">OS</tspan></text>
+
+  <!-- Subtitle tag line (optional — hidden by default, reveal via CSS if needed) -->
+  <!-- Uncomment to use Option B layout:
+  <text
+    x="58" y="40"
+    font-family="'JetBrains Mono', monospace"
+    font-size="7"
+    font-weight="400"
+    letter-spacing="2.5"
+    fill="#00C2FF"
+    opacity="0.6"
+  >ACADEMIC INTELLIGENCE SYSTEM</text>
+  -->
+</svg>

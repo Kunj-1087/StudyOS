@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Terminal, ChevronRight, Activity, Zap, Shield } from 'lucide-react';
+import { ChevronRight, Activity, Zap, Shield } from 'lucide-react';
 import { Button } from '../components/ui/button';
 
 export default function LandingPage() {
@@ -14,21 +14,20 @@ export default function LandingPage() {
             {/* Content */}
             <div className="relative z-10 min-h-screen flex flex-col">
                 {/* Header */}
-                <header className="tactical-container py-6">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-primary/10 border border-primary/30 rounded-sm flex items-center justify-center">
-                                <Terminal className="w-5 h-5 text-primary" />
-                            </div>
-                            <span className="font-heading text-xl tracking-wider text-white">
-                                STUDY<span className="text-primary">OS</span>
-                            </span>
-                        </div>
+                <header className="top-bar">
+                    <div className="brand-left">
+                        <img
+                            src="/assets/studyos-logo.svg"
+                            alt="StudyOS — Academic Intelligence System"
+                            className="logo-glow"
+                            height="36"
+                            style={{ height: '36px', width: 'auto' }}
+                        />
+                    </div>
 
-                        <div className="status-indicator">
-                            <div className="status-dot" />
-                            <span className="text-secondary">System Online</span>
-                        </div>
+                    <div className="status-right">
+                        <div className="status-dot" />
+                        <span className="text-secondary font-mono text-xs uppercase tracking-widest">System Online</span>
                     </div>
                 </header>
 

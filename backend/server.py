@@ -1,44 +1,48 @@
 """
 studyOS Backend Server
-Academic Intelligence System API
+Academic Intelligence System API — powered by supabase-py (HTTPS)
 """
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, Header
+from fastapi import FastAPI, APIRouter, HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 import os
 import logging
-from pathlib import Path
-from pydantic import BaseModel, Field, EmailStr
-from typing import List, Optional, Any
 import uuid
+from pathlib import Path
+from pydantic import BaseModel, EmailStr
+from typing import List, Optional
 from datetime import datetime, timezone, timedelta
 from enum import Enum
 
 # Local imports
 from auth import (
-    verify_password, get_password_hash, create_access_token, 
-    decode_token, UserRegister, UserLogin, Token, UserResponse,
+    verify_password, get_password_hash, create_access_token,
+    decode_token, UserRegister, UserLogin, Token,
     ACCESS_TOKEN_EXPIRE_MINUTES
 )
+from database import get_supabase, is_database_configured
 from seed_data import DOMAINS_DATA, RESOURCES_DATA
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# Check if Supabase is configured
-DATABASE_URL = os.environ.get('DATABASE_URL')
-USE_SUPABASE = DATABASE_URL is not None
+# Logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# In-memory storage fallback (when Supabase not configured)
-# This allows the app to run in demo mode
+USE_SUPABASE = is_database_configured()
+
+# ── In-memory fallback (demo mode) ──────────────────────────────────────────
 users_db = {}
 domains_db = {}
 resources_db = {}
 user_progress_db = {}
 personal_plan_db = {}
 
-# Initialize domains from seed data
 def init_seed_data():
     for domain_data in DOMAINS_DATA:
         domain_id = str(uuid.uuid4())
@@ -50,8 +54,6 @@ def init_seed_data():
             "created_at": datetime.now(timezone.utc).isoformat(),
             "updated_at": datetime.now(timezone.utc).isoformat()
         }
-        
-        # Add resources for this domain
         slug = domain_data["slug"]
         if slug in RESOURCES_DATA:
             for idx, res in enumerate(RESOURCES_DATA[slug]):
@@ -71,38 +73,16 @@ def init_seed_data():
 
 init_seed_data()
 
-# FastAPI App
+# ── FastAPI App ──────────────────────────────────────────────────────────────
 app = FastAPI(title="studyOS API", version="1.0.0")
 api_router = APIRouter(prefix="/api")
 security = HTTPBearer(auto_error=False)
 
-# Pydantic Models
+# ── Pydantic Models ──────────────────────────────────────────────────────────
 class UserRole(str, Enum):
     STUDENT = "student"
     CONTRIBUTOR = "contributor"
     ADMIN = "admin"
-
-class ResourceType(str, Enum):
-    VIDEO = "video"
-    ARTICLE = "article"
-    COURSE = "course"
-    BOOK = "book"
-    TOOL = "tool"
-    PROJECT = "project"
-    COMMUNITY = "community"
-
-class ResourceCategory(str, Enum):
-    FOUNDATION = "foundation"
-    CORE_STACK = "core_stack"
-    ADVANCED = "advanced"
-    PROJECTS = "projects"
-    INDUSTRY_EXPOSURE = "industry_exposure"
-
-class DifficultyLevel(str, Enum):
-    BEGINNER = "beginner"
-    INTERMEDIATE = "intermediate"
-    ADVANCED = "advanced"
-    EXPERT = "expert"
 
 class DomainResponse(BaseModel):
     id: str
@@ -158,33 +138,49 @@ class UserProfileUpdate(BaseModel):
     name: Optional[str] = None
     avatar_url: Optional[str] = None
 
-# Auth dependency
+# ── Helpers ──────────────────────────────────────────────────────────────────
+def now_iso():
+    return datetime.now(timezone.utc).isoformat()
+
+# ── Auth Dependency ──────────────────────────────────────────────────────────
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
     if credentials is None:
         return None
-    
     token_data = decode_token(credentials.credentials)
     if token_data is None:
         return None
-    
-    user = users_db.get(token_data.user_id)
-    return user
+    if USE_SUPABASE:
+        try:
+            sb = get_supabase()
+            res = sb.table("users").select("*").eq("id", token_data.user_id).single().execute()
+            return res.data
+        except Exception:
+            return None
+    return users_db.get(token_data.user_id)
 
 async def require_auth(credentials: HTTPAuthorizationCredentials = Depends(security)):
     if credentials is None:
         raise HTTPException(status_code=401, detail="Not authenticated")
-    
     token_data = decode_token(credentials.credentials)
     if token_data is None:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
-    
+    if USE_SUPABASE:
+        try:
+            sb = get_supabase()
+            res = sb.table("users").select("*").eq("id", token_data.user_id).single().execute()
+            if not res.data:
+                raise HTTPException(status_code=401, detail="User not found")
+            return res.data
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=401, detail="Auth error")
     user = users_db.get(token_data.user_id)
     if user is None:
         raise HTTPException(status_code=401, detail="User not found")
-    
     return user
 
-# Routes
+# ── Routes ───────────────────────────────────────────────────────────────────
 @api_router.get("/")
 async def root():
     return {"message": "studyOS API v1.0", "status": "operational"}
@@ -193,92 +189,103 @@ async def root():
 async def health_check():
     return {
         "status": "healthy",
-        "database": "supabase" if USE_SUPABASE else "in-memory",
-        "timestamp": datetime.now(timezone.utc).isoformat()
+        "database": "supabase" if USE_SUPABASE else "in-memory (demo)",
+        "timestamp": now_iso()
     }
 
-# Auth Routes
+# ── Auth Routes ──────────────────────────────────────────────────────────────
 @api_router.post("/auth/register", response_model=Token)
 async def register(data: UserRegister):
-    # Check if user exists
-    for user in users_db.values():
-        if user["email"] == data.email:
-            raise HTTPException(status_code=400, detail="Email already registered")
-    
-    user_id = str(uuid.uuid4())
-    now = datetime.now(timezone.utc).isoformat()
-    
-    user = {
-        "id": user_id,
-        "email": data.email,
-        "password_hash": get_password_hash(data.password),
-        "name": data.name,
-        "avatar_url": None,
-        "role": "student",
-        "auth_provider": "email",
-        "skill_index": 0.0,
-        "reputation_score": 0,
-        "contribution_count": 0,
-        "execution_score": 0.0,
-        "created_at": now,
-        "updated_at": now,
-        "last_login": now
-    }
-    
-    users_db[user_id] = user
-    
-    # Create token
-    token = create_access_token({
-        "user_id": user_id,
-        "email": data.email,
-        "role": "student"
-    })
-    
-    return Token(
-        access_token=token,
-        token_type="bearer",
-        expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60
-    )
+    try:
+        if USE_SUPABASE:
+            sb = get_supabase()
+            # Check existing
+            existing = sb.table("users").select("id").eq("email", data.email).execute()
+            if existing.data:
+                raise HTTPException(status_code=400, detail="Email already registered")
+            
+            user_id = str(uuid.uuid4())
+            now = now_iso()
+            user_row = {
+                "id": user_id,
+                "email": data.email,
+                "password_hash": get_password_hash(data.password),
+                "name": data.name,
+                "avatar_url": None,
+                "role": "student",
+                "auth_provider": "email",
+                "skill_index": 0.0,
+                "reputation_score": 0,
+                "contribution_count": 0,
+                "execution_score": 0.0,
+                "created_at": now,
+                "updated_at": now,
+                "last_login": now
+            }
+            sb.table("users").insert(user_row).execute()
+        else:
+            for u in users_db.values():
+                if u["email"] == data.email:
+                    raise HTTPException(status_code=400, detail="Email already registered")
+            user_id = str(uuid.uuid4())
+            now = now_iso()
+            users_db[user_id] = {
+                "id": user_id, "email": data.email,
+                "password_hash": get_password_hash(data.password),
+                "name": data.name, "avatar_url": None, "role": "student",
+                "auth_provider": "email", "skill_index": 0.0,
+                "reputation_score": 0, "contribution_count": 0,
+                "execution_score": 0.0, "created_at": now,
+                "updated_at": now, "last_login": now
+            }
+
+        token = create_access_token({"user_id": user_id, "email": data.email, "role": "student"})
+        return Token(access_token=token, token_type="bearer", expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Registration error: {e}", exc_info=True)
+        # Obfuscate internal error details for security
+        raise HTTPException(status_code=500, detail="Internal Server Error during registration")
 
 @api_router.post("/auth/login", response_model=Token)
 async def login(data: UserLogin):
-    # Find user
-    user = None
-    for u in users_db.values():
-        if u["email"] == data.email:
-            user = u
-            break
-    
-    if user is None:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-    
-    if not verify_password(data.password, user["password_hash"]):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-    
-    # Update last login
-    user["last_login"] = datetime.now(timezone.utc).isoformat()
-    
-    # Create token
-    token = create_access_token({
-        "user_id": user["id"],
-        "email": user["email"],
-        "role": user["role"]
-    })
-    
-    return Token(
-        access_token=token,
-        token_type="bearer",
-        expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60
-    )
+    try:
+        user = None
+        if USE_SUPABASE:
+            sb = get_supabase()
+            res = sb.table("users").select("*").eq("email", data.email).execute()
+            if res.data:
+                user = res.data[0]
+        else:
+            for u in users_db.values():
+                if u["email"] == data.email:
+                    user = u
+                    break
+
+        if user is None or not verify_password(data.password, user["password_hash"]):
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+
+        # Update last login
+        if USE_SUPABASE:
+            get_supabase().table("users").update({"last_login": now_iso()}).eq("id", user["id"]).execute()
+        else:
+            users_db[user["id"]]["last_login"] = now_iso()
+
+        token = create_access_token({"user_id": user["id"], "email": user["email"], "role": user["role"]})
+        return Token(access_token=token, token_type="bearer", expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Login error: {e}", exc_info=True)
+        # Obfuscate internal error details for security
+        raise HTTPException(status_code=500, detail="Internal Server Error during login")
 
 @api_router.get("/auth/me")
 async def get_me(user: dict = Depends(require_auth)):
     return {
-        "id": user["id"],
-        "email": user["email"],
-        "name": user["name"],
-        "avatar_url": user.get("avatar_url"),
-        "role": user["role"],
+        "id": user["id"], "email": user["email"], "name": user["name"],
+        "avatar_url": user.get("avatar_url"), "role": user["role"],
         "skill_index": user.get("skill_index", 0),
         "reputation_score": user.get("reputation_score", 0),
         "contribution_count": user.get("contribution_count", 0),
@@ -288,81 +295,122 @@ async def get_me(user: dict = Depends(require_auth)):
 
 @api_router.put("/auth/profile")
 async def update_profile(data: UserProfileUpdate, user: dict = Depends(require_auth)):
+    updates = {"updated_at": now_iso()}
     if data.name:
-        user["name"] = data.name
+        updates["name"] = data.name
     if data.avatar_url:
-        user["avatar_url"] = data.avatar_url
-    user["updated_at"] = datetime.now(timezone.utc).isoformat()
-    
-    return {"message": "Profile updated", "user": user}
+        updates["avatar_url"] = data.avatar_url
+    if USE_SUPABASE:
+        get_supabase().table("users").update(updates).eq("id", user["id"]).execute()
+    else:
+        users_db[user["id"]].update(updates)
+    return {"message": "Profile updated"}
 
-# Domain Routes
+# ── Domain Routes ────────────────────────────────────────────────────────────
 @api_router.get("/domains", response_model=List[DomainResponse])
 async def get_domains():
+    if USE_SUPABASE:
+        sb = get_supabase()
+        res = sb.table("domains").select("*").eq("is_active", True).order("display_order").execute()
+        return res.data or []
     domains = [d for d in domains_db.values() if d.get("is_active", True)]
     domains.sort(key=lambda x: x.get("display_order", 0))
     return domains
 
 @api_router.get("/domains/{slug}", response_model=DomainResponse)
 async def get_domain(slug: str):
+    if USE_SUPABASE:
+        sb = get_supabase()
+        res = sb.table("domains").select("*").eq("slug", slug).execute()
+        if not res.data:
+            raise HTTPException(status_code=404, detail="Domain not found")
+        return res.data[0]
     for domain in domains_db.values():
         if domain["slug"] == slug:
             return domain
     raise HTTPException(status_code=404, detail="Domain not found")
 
-# Resource Routes
+# ── Resource Routes ──────────────────────────────────────────────────────────
 @api_router.get("/domains/{slug}/resources", response_model=List[ResourceResponse])
 async def get_domain_resources(slug: str, category: Optional[str] = None):
-    # Find domain
-    domain = None
-    for d in domains_db.values():
-        if d["slug"] == slug:
-            domain = d
-            break
-    
-    if domain is None:
+    if USE_SUPABASE:
+        sb = get_supabase()
+        # Get domain first
+        dom = sb.table("domains").select("id").eq("slug", slug).execute()
+        if not dom.data:
+            raise HTTPException(status_code=404, detail="Domain not found")
+        dom.data = dom.data[0]  # normalise to single object
+        query = sb.table("resources").select("*").eq("domain_id", dom.data["id"]).eq("is_active", True)  # type: ignore
+        if category:
+            query = query.eq("category", category)
+        res = query.order("display_order").execute()
+        return res.data or []
+
+    domain = next((d for d in domains_db.values() if d["slug"] == slug), None)
+    if not domain:
         raise HTTPException(status_code=404, detail="Domain not found")
-    
-    # Get resources
-    resources = [r for r in resources_db.values() 
+    resources = [r for r in resources_db.values()
                  if r["domain_id"] == domain["id"] and r.get("is_active", True)]
-    
     if category:
         resources = [r for r in resources if r.get("category") == category]
-    
     resources.sort(key=lambda x: x.get("display_order", 0))
     return resources
 
 @api_router.get("/resources/{resource_id}", response_model=ResourceResponse)
 async def get_resource(resource_id: str):
+    if USE_SUPABASE:
+        sb = get_supabase()
+        res = sb.table("resources").select("*").eq("id", resource_id).single().execute()
+        if not res.data:
+            raise HTTPException(status_code=404, detail="Resource not found")
+        sb.table("resources").update({"view_count": (res.data.get("view_count", 0) + 1)}).eq("id", resource_id).execute()
+        return res.data
     resource = resources_db.get(resource_id)
     if resource is None:
         raise HTTPException(status_code=404, detail="Resource not found")
-    
-    # Increment view count
     resource["view_count"] = resource.get("view_count", 0) + 1
     return resource
 
 @api_router.post("/resources/{resource_id}/upvote")
 async def upvote_resource(resource_id: str, user: dict = Depends(require_auth)):
+    if USE_SUPABASE:
+        sb = get_supabase()
+        res = sb.table("resources").select("upvotes").eq("id", resource_id).single().execute()
+        if not res.data:
+            raise HTTPException(status_code=404, detail="Resource not found")
+        new_count = (res.data.get("upvotes", 0) + 1)
+        sb.table("resources").update({"upvotes": new_count}).eq("id", resource_id).execute()
+        return {"message": "Upvoted", "upvotes": new_count}
     resource = resources_db.get(resource_id)
     if resource is None:
         raise HTTPException(status_code=404, detail="Resource not found")
-    
     resource["upvotes"] = resource.get("upvotes", 0) + 1
     return {"message": "Upvoted", "upvotes": resource["upvotes"]}
 
-# User Progress Routes
+# ── User Progress Routes ─────────────────────────────────────────────────────
 @api_router.get("/progress", response_model=List[UserProgressResponse])
 async def get_user_progress(user: dict = Depends(require_auth)):
+    if USE_SUPABASE:
+        sb = get_supabase()
+        res = sb.table("user_progress").select("*, domains(name)").eq("user_id", user["id"]).execute()
+        return [
+            {
+                "domain_id": p["domain_id"],
+                "domain_name": p.get("domains", {}).get("name", ""),
+                "completion_percentage": p.get("completion_percentage", 0),
+                "resources_completed": p.get("resources_completed", []),
+                "started_at": p.get("started_at"),
+                "last_activity": p.get("last_activity")
+            }
+            for p in (res.data or [])
+        ]
     user_id = user["id"]
-    progress_list = []
-    
-    for key, progress in user_progress_db.items():
+    result = []
+    for progress in user_progress_db.values():
         if progress["user_id"] == user_id:
             domain = domains_db.get(progress["domain_id"])
             if domain:
-                progress_list.append({
+                result.append({
                     "domain_id": progress["domain_id"],
                     "domain_name": domain["name"],
                     "completion_percentage": progress.get("completion_percentage", 0),
@@ -370,181 +418,201 @@ async def get_user_progress(user: dict = Depends(require_auth)):
                     "started_at": progress.get("started_at"),
                     "last_activity": progress.get("last_activity")
                 })
-    
-    return progress_list
+    return result
 
 @api_router.post("/progress/{domain_slug}/start")
 async def start_domain(domain_slug: str, user: dict = Depends(require_auth)):
-    # Find domain
-    domain = None
-    for d in domains_db.values():
-        if d["slug"] == domain_slug:
-            domain = d
-            break
-    
-    if domain is None:
+    if USE_SUPABASE:
+        sb = get_supabase()
+        dom = sb.table("domains").select("id").eq("slug", domain_slug).single().execute()
+        if not dom.data:
+            raise HTTPException(status_code=404, detail="Domain not found")
+        domain_id = dom.data["id"]
+        existing = sb.table("user_progress").select("id").eq("user_id", user["id"]).eq("domain_id", domain_id).execute()
+        if not existing.data:
+            now = now_iso()
+            row = {
+                "id": str(uuid.uuid4()), "user_id": user["id"], "domain_id": domain_id,
+                "completion_percentage": 0.0, "resources_completed": [],
+                "started_at": now, "last_activity": now
+            }
+            sb.table("user_progress").insert(row).execute()
+            return {"message": "Domain started", "progress": row}
+        return {"message": "Already started"}
+
+    domain = next((d for d in domains_db.values() if d["slug"] == domain_slug), None)
+    if not domain:
         raise HTTPException(status_code=404, detail="Domain not found")
-    
-    user_id = user["id"]
-    progress_key = f"{user_id}_{domain['id']}"
-    
-    if progress_key not in user_progress_db:
-        now = datetime.now(timezone.utc).isoformat()
-        user_progress_db[progress_key] = {
-            "id": str(uuid.uuid4()),
-            "user_id": user_id,
-            "domain_id": domain["id"],
-            "completion_percentage": 0.0,
-            "resources_completed": [],
-            "started_at": now,
-            "last_activity": now
+    key = f"{user['id']}_{domain['id']}"
+    if key not in user_progress_db:
+        now = now_iso()
+        user_progress_db[key] = {
+            "id": str(uuid.uuid4()), "user_id": user["id"], "domain_id": domain["id"],
+            "completion_percentage": 0.0, "resources_completed": [],
+            "started_at": now, "last_activity": now
         }
-    
-    return {"message": "Domain started", "progress": user_progress_db[progress_key]}
+    return {"message": "Domain started", "progress": user_progress_db[key]}
 
 @api_router.post("/progress/{domain_slug}/complete-resource/{resource_id}")
 async def complete_resource(domain_slug: str, resource_id: str, user: dict = Depends(require_auth)):
-    # Find domain
-    domain = None
-    for d in domains_db.values():
-        if d["slug"] == domain_slug:
-            domain = d
-            break
-    
-    if domain is None:
+    if USE_SUPABASE:
+        sb = get_supabase()
+        dom = sb.table("domains").select("id").eq("slug", domain_slug).single().execute()
+        if not dom.data:
+            raise HTTPException(status_code=404, detail="Domain not found")
+        domain_id = dom.data["id"]
+        # Get or create progress
+        prog_res = sb.table("user_progress").select("*").eq("user_id", user["id"]).eq("domain_id", domain_id).execute()
+        now = now_iso()
+        if not prog_res.data:
+            progress = {
+                "id": str(uuid.uuid4()), "user_id": user["id"], "domain_id": domain_id,
+                "completion_percentage": 0.0, "resources_completed": [resource_id],
+                "started_at": now, "last_activity": now
+            }
+            sb.table("user_progress").insert(progress).execute()
+        else:
+            progress = prog_res.data[0]
+            completed = progress.get("resources_completed") or []
+            if resource_id not in completed:
+                completed.append(resource_id)
+                total = sb.table("resources").select("id", count="exact").eq("domain_id", domain_id).execute()
+                pct = (len(completed) / total.count * 100) if total.count else 0
+                sb.table("user_progress").update({
+                    "resources_completed": completed,
+                    "completion_percentage": pct,
+                    "last_activity": now
+                }).eq("id", progress["id"]).execute()
+                progress["resources_completed"] = completed
+                progress["completion_percentage"] = pct
+        return {"message": "Resource completed", "progress": progress}
+
+    domain = next((d for d in domains_db.values() if d["slug"] == domain_slug), None)
+    if not domain:
         raise HTTPException(status_code=404, detail="Domain not found")
-    
-    # Verify resource belongs to domain
     resource = resources_db.get(resource_id)
     if resource is None or resource["domain_id"] != domain["id"]:
         raise HTTPException(status_code=404, detail="Resource not found in domain")
-    
-    user_id = user["id"]
-    progress_key = f"{user_id}_{domain['id']}"
-    
-    if progress_key not in user_progress_db:
-        now = datetime.now(timezone.utc).isoformat()
-        user_progress_db[progress_key] = {
-            "id": str(uuid.uuid4()),
-            "user_id": user_id,
-            "domain_id": domain["id"],
-            "completion_percentage": 0.0,
-            "resources_completed": [],
-            "started_at": now,
-            "last_activity": now
+    key = f"{user['id']}_{domain['id']}"
+    now = now_iso()
+    if key not in user_progress_db:
+        user_progress_db[key] = {
+            "id": str(uuid.uuid4()), "user_id": user["id"], "domain_id": domain["id"],
+            "completion_percentage": 0.0, "resources_completed": [],
+            "started_at": now, "last_activity": now
         }
-    
-    progress = user_progress_db[progress_key]
-    
+    progress = user_progress_db[key]
     if resource_id not in progress["resources_completed"]:
         progress["resources_completed"].append(resource_id)
-        
-        # Calculate completion percentage
-        total_resources = len([r for r in resources_db.values() if r["domain_id"] == domain["id"]])
-        if total_resources > 0:
-            progress["completion_percentage"] = (len(progress["resources_completed"]) / total_resources) * 100
-        
-        progress["last_activity"] = datetime.now(timezone.utc).isoformat()
-        
-        # Update user stats
-        user["skill_index"] = user.get("skill_index", 0) + 0.5
-        user["execution_score"] = user.get("execution_score", 0) + 1.0
-    
+        total = len([r for r in resources_db.values() if r["domain_id"] == domain["id"]])
+        if total:
+            progress["completion_percentage"] = (len(progress["resources_completed"]) / total) * 100
+        progress["last_activity"] = now
     return {"message": "Resource completed", "progress": progress}
 
-# Personal Plan Routes
+# ── Personal Plan Routes ─────────────────────────────────────────────────────
 @api_router.get("/personal-plan")
 async def get_personal_plan(user: dict = Depends(require_auth)):
+    if USE_SUPABASE:
+        sb = get_supabase()
+        res = sb.table("personal_plan_items").select("*, resources(*)").eq("user_id", user["id"]).execute()
+        return res.data or []
     user_id = user["id"]
-    plan_items = []
-    
-    for key, item in personal_plan_db.items():
-        if item["user_id"] == user_id:
-            resource = resources_db.get(item["resource_id"])
-            if resource:
-                plan_items.append({
-                    **item,
-                    "resource": resource
-                })
-    
-    return plan_items
+    return [
+        {**item, "resource": resources_db.get(item["resource_id"])}
+        for item in personal_plan_db.values()
+        if item["user_id"] == user_id
+    ]
 
 @api_router.post("/personal-plan/add")
 async def add_to_plan(data: PersonalPlanAdd, user: dict = Depends(require_auth)):
+    if USE_SUPABASE:
+        sb = get_supabase()
+        res_check = sb.table("resources").select("id").eq("id", data.resource_id).execute()
+        if not res_check.data:
+            raise HTTPException(status_code=404, detail="Resource not found")
+        existing = sb.table("personal_plan_items").select("id").eq("user_id", user["id"]).eq("resource_id", data.resource_id).execute()
+        if existing.data:
+            raise HTTPException(status_code=400, detail="Already in plan")
+        row = {
+            "id": str(uuid.uuid4()), "user_id": user["id"], "resource_id": data.resource_id,
+            "is_completed": False, "notes": None, "priority": 0, "added_at": now_iso()
+        }
+        sb.table("personal_plan_items").insert(row).execute()
+        return {"message": "Added to plan", "item": row}
     resource = resources_db.get(data.resource_id)
     if resource is None:
         raise HTTPException(status_code=404, detail="Resource not found")
-    
-    user_id = user["id"]
-    plan_key = f"{user_id}_{data.resource_id}"
-    
-    if plan_key in personal_plan_db:
+    key = f"{user['id']}_{data.resource_id}"
+    if key in personal_plan_db:
         raise HTTPException(status_code=400, detail="Already in plan")
-    
-    now = datetime.now(timezone.utc).isoformat()
-    personal_plan_db[plan_key] = {
-        "id": str(uuid.uuid4()),
-        "user_id": user_id,
-        "resource_id": data.resource_id,
-        "is_completed": False,
-        "notes": None,
-        "priority": 0,
-        "added_at": now
+    row = {
+        "id": str(uuid.uuid4()), "user_id": user["id"], "resource_id": data.resource_id,
+        "is_completed": False, "notes": None, "priority": 0, "added_at": now_iso()
     }
-    
-    return {"message": "Added to plan", "item": personal_plan_db[plan_key]}
+    personal_plan_db[key] = row
+    return {"message": "Added to plan", "item": row}
 
 @api_router.delete("/personal-plan/{resource_id}")
 async def remove_from_plan(resource_id: str, user: dict = Depends(require_auth)):
-    user_id = user["id"]
-    plan_key = f"{user_id}_{resource_id}"
-    
-    if plan_key not in personal_plan_db:
+    if USE_SUPABASE:
+        sb = get_supabase()
+        sb.table("personal_plan_items").delete().eq("user_id", user["id"]).eq("resource_id", resource_id).execute()
+        return {"message": "Removed from plan"}
+    key = f"{user['id']}_{resource_id}"
+    if key not in personal_plan_db:
         raise HTTPException(status_code=404, detail="Item not in plan")
-    
-    del personal_plan_db[plan_key]
+    del personal_plan_db[key]
     return {"message": "Removed from plan"}
 
 @api_router.put("/personal-plan/{resource_id}/complete")
 async def complete_plan_item(resource_id: str, user: dict = Depends(require_auth)):
-    user_id = user["id"]
-    plan_key = f"{user_id}_{resource_id}"
-    
-    if plan_key not in personal_plan_db:
+    now = now_iso()
+    if USE_SUPABASE:
+        sb = get_supabase()
+        sb.table("personal_plan_items").update({"is_completed": True, "completed_at": now}).eq("user_id", user["id"]).eq("resource_id", resource_id).execute()
+        return {"message": "Completed"}
+    key = f"{user['id']}_{resource_id}"
+    if key not in personal_plan_db:
         raise HTTPException(status_code=404, detail="Item not in plan")
-    
-    personal_plan_db[plan_key]["is_completed"] = True
-    personal_plan_db[plan_key]["completed_at"] = datetime.now(timezone.utc).isoformat()
-    
-    return {"message": "Completed", "item": personal_plan_db[plan_key]}
+    personal_plan_db[key]["is_completed"] = True
+    personal_plan_db[key]["completed_at"] = now
+    return {"message": "Completed", "item": personal_plan_db[key]}
 
-# User Stats (for profile)
+# ── User Stats ───────────────────────────────────────────────────────────────
 @api_router.get("/user/stats")
 async def get_user_stats(user: dict = Depends(require_auth)):
-    user_id = user["id"]
-    
-    # Calculate domain completion
-    domain_stats = []
-    for domain in domains_db.values():
-        progress_key = f"{user_id}_{domain['id']}"
-        progress = user_progress_db.get(progress_key)
-        if progress:
-            domain_stats.append({
-                "domain_id": domain["id"],
-                "domain_name": domain["name"],
-                "domain_slug": domain["slug"],
-                "completion": progress.get("completion_percentage", 0)
-            })
-    
-    # Calculate activity (simplified)
-    activity_data = []
-    for i in range(7):
-        day = datetime.now(timezone.utc) - timedelta(days=i)
-        activity_data.append({
-            "date": day.strftime("%Y-%m-%d"),
-            "activity": len(domain_stats) * (7 - i)  # Simplified activity metric
-        })
-    
+    if USE_SUPABASE:
+        sb = get_supabase()
+        prog_res = sb.table("user_progress").select("*, domains(name, slug)").eq("user_id", user["id"]).execute()
+        domain_stats = [
+            {
+                "domain_id": p["domain_id"],
+                "domain_name": p.get("domains", {}).get("name", ""),
+                "domain_slug": p.get("domains", {}).get("slug", ""),
+                "completion": p.get("completion_percentage", 0)
+            }
+            for p in (prog_res.data or [])
+        ]
+    else:
+        user_id = user["id"]
+        domain_stats = []
+        for domain in domains_db.values():
+            key = f"{user_id}_{domain['id']}"
+            progress = user_progress_db.get(key)
+            if progress:
+                domain_stats.append({
+                    "domain_id": domain["id"], "domain_name": domain["name"],
+                    "domain_slug": domain["slug"],
+                    "completion": progress.get("completion_percentage", 0)
+                })
+
+    activity_data = [
+        {"date": (datetime.now(timezone.utc) - timedelta(days=i)).strftime("%Y-%m-%d"),
+         "activity": len(domain_stats) * (7 - i)}
+        for i in range(7)
+    ]
+
     return {
         "skill_index": user.get("skill_index", 0),
         "reputation_score": user.get("reputation_score", 0),
@@ -555,10 +623,9 @@ async def get_user_stats(user: dict = Depends(require_auth)):
         "activity": activity_data[::-1]
     }
 
-# Include router
+# ── Assemble app ─────────────────────────────────────────────────────────────
 app.include_router(api_router)
 
-# CORS Middleware
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
@@ -567,15 +634,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
 @app.on_event("startup")
 async def startup():
     logger.info("studyOS API starting up...")
-    logger.info(f"Database mode: {'Supabase' if USE_SUPABASE else 'In-memory (demo mode)'}")
-    logger.info(f"Loaded {len(domains_db)} domains, {len(resources_db)} resources")
+    logger.info(f"Database mode: {'Supabase (HTTPS)' if USE_SUPABASE else 'In-memory (demo mode)'}")
+    if not USE_SUPABASE:
+        logger.info(f"Loaded {len(domains_db)} domains, {len(resources_db)} resources (in-memory)")

@@ -20,7 +20,22 @@ api.interceptors.request.use((config) => {
         config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
+}, (error) => {
+    return Promise.reject(error);
 });
+
+// Universal error handler for auth
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401) {
+            // Uncomment to auto-logout on 401
+            // localStorage.removeItem('studyos_token');
+            // window.location.href = '/auth';
+        }
+        return Promise.reject(error);
+    }
+);
 
 // Domains API
 export const domainsApi = {
@@ -56,7 +71,8 @@ export const planApi = {
 
 // User Stats API
 export const userApi = {
-    getStats: () => api.get('/user/stats')
+    getStats: () => api.get('/user/stats'),
+    updateProfile: (data) => api.put('/auth/profile', data)
 };
 
 export default api;

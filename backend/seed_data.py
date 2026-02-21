@@ -387,6 +387,150 @@ DOMAINS_DATA = [
             {"step": 3, "title": "dApp Development", "duration": "3 months", "tasks": ["Frontend integration", "Web3 libraries", "User authentication"]},
             {"step": 4, "title": "Advanced", "duration": "3 months", "tasks": ["Security auditing", "DeFi mechanics", "Cross-chain development"]}
         ]
+    },
+    {
+        "slug": "devops",
+        "name": "Cloud Engineering & DevOps",
+        "description": "Automating infrastructure, scaling cloud architectures, and mastering the development-to-operation lifecycle.",
+        "icon": "Cpu",
+        "market_demand": 94,
+        "difficulty_index": 76,
+        "time_to_competency": "10-14 months",
+        "avg_salary_min": 105000,
+        "avg_salary_max": 230000,
+        "overview": "Cloud Engineering focuses on architecting and managing scalable systems on platforms like AWS, GCP, and Azure. DevOps bridges the gap between development and operations through automation (CI/CD), containers (Docker), and orchestration (Kubernetes).",
+        "why_it_matters": "Every modern software company is a cloud company. The ability to deploy robust, self-healing, and scalable infrastructure is one of the most stable and high-paying specializations in tech.",
+        "core_concepts": [
+            "Infrastructure as Code (IaC)",
+            "Container Orchestration",
+            "Continuous Integration & Deployment",
+            "Microservices Architecture",
+            "Cloud Security & Compliance",
+            "Observability & Monitoring"
+        ],
+        "required_skills": [
+            {"name": "AWS/Azure/GCP", "level": "advanced", "importance": 96},
+            {"name": "Docker & Kubernetes", "level": "advanced", "importance": 94},
+            {"name": "Terraform/Ansible", "level": "advanced", "importance": 90},
+            {"name": "Linux Mastery", "level": "advanced", "importance": 88},
+            {"name": "Python/Bash", "level": "intermediate", "importance": 85}
+        ],
+        "tool_stack": [
+            {"name": "Terraform", "category": "IaC", "icon": "Terminal"},
+            {"name": "Kubernetes", "category": "Orchestration", "icon": "Network"},
+            {"name": "GitHub Actions", "category": "CI/CD", "icon": "GitBranch"},
+            {"name": "Prometheus", "category": "Monitoring", "icon": "Eye"},
+            {"name": "AWS Lambda", "category": "Serverless", "icon": "Zap"}
+        ],
+        "industry_applications": [
+            "Scalable SaaS Platforms",
+            "High-Availability Banking Systems",
+            "Real-time Streaming Scaling (Netflix)",
+            "Enterprise Cloud Migration",
+            "Automated Security Pipelines"
+        ],
+        "execution_strategy": [
+            {"step": 1, "title": "Linux & Networking", "duration": "3 months", "tasks": ["Linux cli mastery", "TCP/IP & DNS", "System administration"]},
+            {"step": 2, "title": "Cloud Fundamentals", "duration": "3 months", "tasks": ["AWS Certified Practitioner", "VPC & IAM basics", "Compute & Storage"]},
+            {"step": 3, "title": "Containers & IaC", "duration": "3 months", "tasks": ["Docker fundamentals", "Terraform basics", "Kubernetes basics"]},
+            {"step": 4, "title": "Automation", "duration": "4 months", "tasks": ["CI/CD pipelines", "Monitoring & Alerts", "System hardening"]}
+        ]
+    },
+    {
+        "slug": "product",
+        "name": "Product Management",
+        "description": "Leading product vision, defining strategy, and coordinating across engineering and design to build what users love.",
+        "icon": "Target",
+        "market_demand": 88,
+        "difficulty_index": 65,
+        "time_to_competency": "6-10 months",
+        "avg_salary_min": 110000,
+        "avg_salary_max": 250000,
+        "overview": "Product Management is at the intersection of business, technology, and user experience. PMs are responsible for the 'Why', 'What', and 'When' of a product, ensuring development teams are building the highest-impact features.",
+        "why_it_matters": "Great products don't happen by accident. Companies need leaders who can translate market vague signals into precise technical requirements and roadmap executions.",
+        "core_concepts": [
+            "Product-Market Fit",
+            "Agile & Scrum Frameworks",
+            "User Centric Design",
+            "Data-Driven Prioritization",
+            "Stakeholder Management",
+            "GTM Strategy"
+        ],
+        "required_skills": [
+            {"name": "Strategic Thinking", "level": "advanced", "importance": 95},
+            {"name": "Data Analysis (SQL/Mixpanel)", "level": "advanced", "importance": 90},
+            {"name": "Technical Fluency", "level": "intermediate", "importance": 85},
+            {"name": "User Research", "level": "advanced", "importance": 82},
+            {"name": "Roadmapping", "level": "advanced", "importance": 80}
+        ],
+        "tool_stack": [
+            {"name": "Jira", "category": "Agile", "icon": "Layers"},
+            {"name": "Figma", "category": "Design/Prototyping", "icon": "Edit3"},
+            {"name": "Mixpanel", "category": "Analytics", "icon": "BarChart"},
+            {"name": "Notion", "category": "Documentation", "icon": "FileText"},
+            {"name": "Trello", "category": "Planning", "icon": "Layout"}
+        ],
+        "industry_applications": [
+            "Big Tech (FAANG)",
+            "Early-stage Startups",
+            "Fintech Product Strategy",
+            "B2B Enterprise Software",
+            "Consumer Mobile Apps"
+        ],
+        "execution_strategy": [
+            {"step": 1, "title": "UX & Tech Basics", "duration": "2 months", "tasks": ["Learn design thinking", "Understand how software is built", "Study user psychology"]},
+            {"step": 2, "title": "Analytical Core", "duration": "2 months", "tasks": ["SQL fundamentals", "A/B testing basics", "Product metrics (North Star)"]},
+            {"step": 3, "title": "Strategy & Planning", "duration": "3 months", "tasks": ["PRD writing", "Roadmap prioritization", "Agile methodologies"]},
+            {"step": 4, "title": "Execution", "duration": "3 months", "tasks": ["GTM planning", "Leadership & soft skills", "Interview case studies"]}
+        ]
+    },
+    {
+        "slug": "fullstack",
+        "name": "Full Stack Engineering",
+        "description": "Building end-to-end web applications, from responsive tactical frontends to robust scalable backends.",
+        "icon": "BarChart3",
+        "market_demand": 92,
+        "difficulty_index": 70,
+        "time_to_competency": "8-12 months",
+        "avg_salary_min": 95000,
+        "avg_salary_max": 200000,
+        "overview": "Full Stack Engineering covers the complete web development cycle. This includes designing responsive user interfaces (Frontend), building server logic and APIs (Backend), and managing data persistence (Databases).",
+        "why_it_matters": "The web is the primary delivery mechanism for almost all software. Full stack developers are versatile assets who can take a prototype from zero to production single-handedly.",
+        "core_concepts": [
+            "SPA Architecture (React/Next.js)",
+            "Server-side Frameworks",
+            "API Design (REST/GraphQL)",
+            "Database Modeling",
+            "State Management",
+            "Web Security & Auth"
+        ],
+        "required_skills": [
+            {"name": "JavaScript/TypeScript", "level": "advanced", "importance": 98},
+            {"name": "React & Next.js", "level": "advanced", "importance": 95},
+            {"name": "Node.js/Go/Python", "level": "advanced", "importance": 90},
+            {"name": "SQL & NoSQL", "level": "advanced", "importance": 85},
+            {"name": "CSS/Tailwind", "level": "advanced", "importance": 80}
+        ],
+        "tool_stack": [
+            {"name": "React", "category": "Frontend", "icon": "Layout"},
+            {"name": "Next.js", "category": "Framework", "icon": "Zap"},
+            {"name": "Supabase", "category": "Backend", "icon": "Database"},
+            {"name": "Vercel", "category": "Deployment", "icon": "Cloud"},
+            {"name": "Docker", "category": "DevOps", "icon": "Box"}
+        ],
+        "industry_applications": [
+            "Corporate Web Portals",
+            "SaaS Applications",
+            "E-commerce Platforms",
+            "Content Management Systems",
+            "Internal Operational Tools"
+        ],
+        "execution_strategy": [
+            {"step": 1, "title": "Frontend Mastery", "duration": "3 months", "tasks": ["HTML/CSS/JS", "React Fundamentals", "State Management"]},
+            {"step": 2, "title": "Backend Core", "duration": "3 months", "tasks": ["Node.js/FastAPI", "Database Design", "Auth systems"]},
+            {"step": 3, "title": "Full Stack Systems", "duration": "3 months", "tasks": ["Connect Front/Back", "Optimizing performance", "Unit & E2E testing"]},
+            {"step": 4, "title": "Deployment & Scale", "duration": "3 months", "tasks": ["CI/CD pipelines", "Scale databases", "Advanced architecture"]}
+        ]
     }
 ]
 
@@ -442,5 +586,23 @@ RESOURCES_DATA = {
         {"title": "Alchemy University", "description": "Free Web3 developer bootcamp", "url": "https://university.alchemy.com", "resource_type": "course", "category": "core_stack", "difficulty": "intermediate", "provider": "Alchemy", "is_free": True},
         {"title": "Smart Contract Security", "description": "Learn to audit smart contracts", "url": "https://github.com/secureum", "resource_type": "course", "category": "advanced", "difficulty": "advanced", "provider": "Secureum", "is_free": True},
         {"title": "Build a DEX", "description": "Create a decentralized exchange", "url": "https://github.com/web3-projects", "resource_type": "project", "category": "projects", "difficulty": "advanced", "provider": "GitHub", "is_free": True}
+    ],
+    "devops": [
+        {"title": "AWS Cloud Practitioner Training", "description": "Official AWS fundamentals course", "url": "https://explore.skillbuilder.aws", "resource_type": "course", "category": "foundation", "difficulty": "beginner", "provider": "AWS", "is_free": True},
+        {"title": "Docker Tutorial for Beginners", "description": "Master containers in 3 hours", "url": "https://www.youtube.com/watch?v=pg19Z8LL06w", "resource_type": "video", "category": "core_stack", "difficulty": "beginner", "provider": "YouTube", "is_free": True},
+        {"title": "Kubernetes Mastery", "description": "Complete K8s orchestration guide", "url": "https://kubernetes.io/docs/tutorials", "resource_type": "article", "category": "advanced", "difficulty": "advanced", "provider": "Kubernetes", "is_free": True},
+        {"title": "Terraform Up & Running", "description": "Master infrastructure as code", "url": "https://www.terraform.io/intro", "resource_type": "book", "category": "core_stack", "difficulty": "intermediate", "provider": "HashiCorp", "is_free": True}
+    ],
+    "product": [
+        {"title": "The Lean Startup", "description": "Product strategy Bible", "url": "https://www.amazon.com/Lean-Startup-Entrepreneurs-Continuous-Innovation", "resource_type": "book", "category": "foundation", "difficulty": "beginner", "provider": "Eric Ries", "is_free": False},
+        {"title": "Product School Resources", "description": "Curated PM learning materials", "url": "https://productschool.com/resources", "resource_type": "course", "category": "core_stack", "difficulty": "intermediate", "provider": "Product School", "is_free": True},
+        {"title": "SQL for Product Managers", "description": "Data analysis basics for PMs", "url": "https://mode.com/blog/sql-for-product-managers", "resource_type": "article", "category": "foundation", "difficulty": "beginner", "provider": "Mode", "is_free": True},
+        {"title": "Agile Manifesto & Principles", "description": "Core frameworks for PM teams", "url": "https://agilemanifesto.org", "resource_type": "article", "category": "foundation", "difficulty": "beginner", "provider": "Agile", "is_free": True}
+    ],
+    "fullstack": [
+        {"title": "Full Stack Open", "description": "Legendary full-stack course from Univ of Helsinki", "url": "https://fullstackopen.com", "resource_type": "course", "category": "foundation", "difficulty": "intermediate", "provider": "UoH", "is_free": True},
+        {"title": "Next.js Official Tutorial", "description": "Build production apps with Next", "url": "https://nextjs.org/learn", "resource_type": "course", "category": "core_stack", "difficulty": "intermediate", "provider": "Vercel", "is_free": True},
+        {"title": "The Odin Project", "description": "Zero to hero full stack path", "url": "https://www.theodinproject.com", "resource_type": "course", "category": "foundation", "difficulty": "beginner", "provider": "Odin", "is_free": True},
+        {"title": "Database Design for Beginners", "description": "Master relational data modeling", "url": "https://www.youtube.com/watch?v=data-design", "resource_type": "video", "category": "core_stack", "difficulty": "beginner", "provider": "YouTube", "is_free": True}
     ]
 }

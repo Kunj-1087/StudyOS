@@ -1,63 +1,44 @@
 """
-Database configuration for Supabase PostgreSQL connection.
-Uses SQLAlchemy async with asyncpg driver.
+Database configuration for studyOS.
+Uses supabase-py SDK over HTTPS (port 443) — works on any network.
 """
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
-from sqlalchemy.orm import DeclarativeBase
+from supabase import create_client, Client
 from dotenv import load_dotenv
 from pathlib import Path
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv(Path(__file__).parent / '.env')
 
-# Get database URL from environment
-DATABASE_URL = os.environ.get('DATABASE_URL')
+SUPABASE_URL = os.environ.get('SUPABASE_URL')
+SUPABASE_SERVICE_KEY = os.environ.get('SUPABASE_SERVICE_KEY')
+SUPABASE_ANON_KEY = os.environ.get('SUPABASE_ANON_KEY')
 
-class Base(DeclarativeBase):
-    pass
+# Use service key for backend (bypasses Row Level Security)
+_KEY = SUPABASE_SERVICE_KEY or SUPABASE_ANON_KEY
 
-# Initialize engine and session only if DATABASE_URL is configured
-engine = None
-AsyncSessionLocal = None
+supabase: Client = None
 
-if DATABASE_URL:
-    # Convert to async URL
-    ASYNC_DATABASE_URL = DATABASE_URL.replace('postgresql://', 'postgresql+asyncpg://')
-    
-    engine = create_async_engine(
-        ASYNC_DATABASE_URL,
-        pool_size=10,
-        max_overflow=5,
-        pool_timeout=30,
-        pool_recycle=1800,
-        pool_pre_ping=False,
-        echo=False,
-        connect_args={
-            "statement_cache_size": 0,  # Required for transaction pooler
-            "command_timeout": 30,
-        }
-    )
-    
-    AsyncSessionLocal = async_sessionmaker(
-        bind=engine,
-        class_=AsyncSession,
-        expire_on_commit=False,
-        autocommit=False,
-        autoflush=False
-    )
+if SUPABASE_URL and _KEY:
+    try:
+        supabase = create_client(SUPABASE_URL, _KEY)
+        logger.info("Supabase client initialised successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialise Supabase client: {e}")
+else:
+    logger.warning("SUPABASE_URL or key not set — running in demo (in-memory) mode")
 
-async def get_db():
-    """Dependency for getting database sessions."""
-    if AsyncSessionLocal is None:
-        raise Exception("Database not configured. Please provide DATABASE_URL in .env")
-    
-    async with AsyncSessionLocal() as session:
-        try:
-            yield session
-        finally:
-            await session.close()
 
-def is_database_configured():
-    """Check if database is properly configured."""
-    return DATABASE_URL is not None and engine is not None
+def get_supabase() -> Client:
+    """Return the Supabase client. Raises if not configured."""
+    if supabase is None:
+        raise RuntimeError("Supabase not configured. Set SUPABASE_URL and SUPABASE_SERVICE_KEY in .env")
+    return supabase
+
+
+def is_database_configured() -> bool:
+    """Check if Supabase is properly configured."""
+    return supabase is not None

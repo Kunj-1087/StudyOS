@@ -14,8 +14,8 @@ SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'studyos-super-secret-key-change-i
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
 
-# Password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Password hashing (using pbkdf2_sha256 to avoid bcrypt's 72-byte limit and Windows issues)
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 # Pydantic Models
 class TokenData(BaseModel):

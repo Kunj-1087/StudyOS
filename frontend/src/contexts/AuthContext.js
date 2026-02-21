@@ -1,23 +1,12 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api, { userApi } from '../lib/api';
 
 const AuthContext = createContext(null);
-
-const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [token, setToken] = useState(localStorage.getItem('studyos_token'));
-
-    // Configure axios defaults
-    useEffect(() => {
-        if (token) {
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        } else {
-            delete axios.defaults.headers.common['Authorization'];
-        }
-    }, [token]);
 
     // Fetch current user
     const fetchUser = useCallback(async () => {
@@ -27,14 +16,16 @@ export function AuthProvider({ children }) {
         }
 
         try {
-            const response = await axios.get(`${API_URL}/auth/me`);
+            const response = await api.get('/auth/me');
             setUser(response.data);
         } catch (error) {
             console.error('Failed to fetch user:', error);
-            // Clear invalid token
-            localStorage.removeItem('studyos_token');
-            setToken(null);
-            setUser(null);
+            // Clear invalid token if it was a 401
+            if (error.response?.status === 401) {
+                localStorage.removeItem('studyos_token');
+                setToken(null);
+                setUser(null);
+            }
         } finally {
             setLoading(false);
         }
@@ -46,7 +37,7 @@ export function AuthProvider({ children }) {
 
     // Register
     const register = async (email, password, name) => {
-        const response = await axios.post(`${API_URL}/auth/register`, {
+        const response = await api.post('/auth/register', {
             email,
             password,
             name
@@ -64,7 +55,7 @@ export function AuthProvider({ children }) {
 
     // Login
     const login = async (email, password) => {
-        const response = await axios.post(`${API_URL}/auth/login`, {
+        const response = await api.post('/auth/login', {
             email,
             password
         });
@@ -88,8 +79,9 @@ export function AuthProvider({ children }) {
 
     // Update profile
     const updateProfile = async (data) => {
-        const response = await axios.put(`${API_URL}/auth/profile`, data);
-        setUser(response.data.user);
+        const response = await userApi.updateProfile(data);
+        // Refresh local user state
+        await fetchUser();
         return response.data;
     };
 

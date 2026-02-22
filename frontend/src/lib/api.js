@@ -34,11 +34,25 @@ api.interceptors.request.use(async (config) => {
     return Promise.reject(error);
 });
 
-// Universal error handler for auth
+// Universal error handler with retry logic
 api.interceptors.response.use(
     (response) => response,
-    (error) => {
-        if (error.response?.status === 401) {
+    async (error) => {
+        const { config, response } = error;
+        
+        // Retry logic for transient errors
+        if (!config || !config.retry) config.retry = 0;
+        
+        const MAX_RETRIES = 2;
+        if (config.retry < MAX_RETRIES && (!response || response.status >= 500)) {
+            config.retry += 1;
+            const delay = config.retry * 1000;
+            console.warn(`[API] Retry attempt ${config.retry} after ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+            return api(config);
+        }
+
+        if (response?.status === 401) {
             // Uncomment to auto-logout on 401
             // localStorage.removeItem('studyos_token');
             // window.location.href = '/auth';

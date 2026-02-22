@@ -320,13 +320,27 @@ async def update_profile(data: UserProfileUpdate, user: dict = Depends(require_a
 # ── Domain Routes ────────────────────────────────────────────────────────────
 @api_router.get("/domains", response_model=List[DomainResponse])
 async def get_domains():
-    if USE_SUPABASE:
-        sb = get_supabase()
-        res = sb.table("domains").select("*").eq("is_active", True).order("display_order").execute()
-        return res.data or []
-    domains = [d for d in domains_db.values() if d.get("is_active", True)]
-    domains.sort(key=lambda x: x.get("display_order", 0))
-    return domains
+    try:
+        if USE_SUPABASE:
+            sb = get_supabase()
+            logger.info("Fetching domains from Supabase...")
+            res = sb.table("domains").select("*").eq("is_active", True).order("display_order").execute()
+            logger.info(f"Successfully fetched {len(res.data or [])} domains from Supabase")
+            return res.data or []
+        
+        logger.info("Fetching domains from in-memory store...")
+        domains = [d for d in domains_db.values() if d.get("is_active", True)]
+        domains.sort(key=lambda x: x.get("display_order", 0))
+        return domains
+    except Exception as e:
+        logger.error(f"Error in get_domains: {str(e)}", exc_info=True)
+        # Fallback to in-memory if Supabase fails (if we have seed data)
+        if domains_db:
+             logger.warning("Falling back to in-memory domains due to error")
+             domains = [d for d in domains_db.values() if d.get("is_active", True)]
+             domains.sort(key=lambda x: x.get("display_order", 0))
+             return domains
+        raise HTTPException(status_code=500, detail="Internal server error while fetching domains")
 
 @api_router.get("/domains/{slug}", response_model=DomainResponse)
 async def get_domain(slug: str):

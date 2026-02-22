@@ -18,7 +18,7 @@ import {
 import { Button } from './ui/button';
 
 export function Navigation() {
-    const { user, isAuthenticated, logout } = useAuth();
+    const { user, profile, isAuthenticated, logout } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -80,7 +80,9 @@ export function Navigation() {
                                         <div className="w-8 h-8 bg-primary/10 border border-primary/30 rounded-sm flex items-center justify-center">
                                             <User className="w-4 h-4 text-primary" />
                                         </div>
-                                        <span className="font-mono text-sm">{user?.name}</span>
+                                        <span className="font-mono text-sm">
+                                            {profile?.name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || "Operator"}
+                                        </span>
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent 

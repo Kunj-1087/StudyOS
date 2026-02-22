@@ -1,19 +1,4 @@
-import { createClient } from "@supabase/supabase-js"
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    "[studyOS] Supabase environment variables are missing. " +
-    "Check your .env file at project root."
-  )
-}
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true,
-  },
-})
+// This file exists for compatibility. The actual client is implemented in
+// the TypeScript module `supabase.ts`. Re-export from it so imports that
+// resolve to `../lib/supabase` continue to work in either environment.
+export * from "./supabase"

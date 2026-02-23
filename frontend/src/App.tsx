@@ -12,12 +12,14 @@ import AuthPage from "./pages/AuthPage";
 // Components
 import ProtectedRoute from "./components/ProtectedRoute";
 
+import LandingPage from "./pages/LandingPage";
+
 function App() {
   return (
     <div className="App">
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Navigate to="/auth" replace />} />
+          <Route path="/" element={<LandingPage />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/hub" element={<ProtectedRoute><HubPage /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute><HubPage /></ProtectedRoute>} />

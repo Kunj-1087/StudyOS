@@ -31,6 +31,16 @@ for idx, domain_data in enumerate(DOMAINS_DATA):
     domain_id = str(uuid.uuid4())
     domain_id_map[domain_data["slug"]] = domain_id
 
+    # Filter row to only include keys that match the current Supabase schema (for resilience)
+    # We can expand this list as we migrate the schema
+    valid_keys = [
+        "id", "slug", "name", "description", "icon", "image_url", 
+        "market_demand", "difficulty_index", "time_to_competency", 
+        "avg_salary_min", "avg_salary_max", "salary_currency",
+        "overview", "why_it_matters", "core_concepts", "required_skills",
+        "tool_stack", "industry_applications", "execution_strategy",
+        "is_active", "display_order", "created_at", "updated_at"
+    ]
     row = {
         "id": domain_id,
         **domain_data,
@@ -39,8 +49,9 @@ for idx, domain_data in enumerate(DOMAINS_DATA):
         "created_at": now_iso(),
         "updated_at": now_iso(),
     }
+    filtered_row = {k: v for k, v in row.items() if k in valid_keys}
 
-    sb.table("domains").insert(row).execute()
+    sb.table("domains").insert(filtered_row).execute()
     print(f"  ✅  Domain: {domain_data['name']}")
 
 print(f"\n  {len(DOMAINS_DATA)} domains seeded.\n")

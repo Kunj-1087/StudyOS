@@ -44,9 +44,11 @@ export function useProfile() {
       setProfile({
         ...userData,
         email: user.email,
-        full_name: userData?.name || user.user_metadata?.full_name || "Operator",
+        name: userData?.name || user.user_metadata?.name || user.user_metadata?.full_name || "Operator",
+        full_name: userData?.name || user.user_metadata?.full_name || user.user_metadata?.name || "Operator",
         role: userData?.role || "Student",
         domains_enrolled: stats.domains_started || stats.domains_enrolled || 0,
+        contribution_count: userData?.contribution_count || 0,
         resources_contributed: stats.resources_contributed || userData?.contribution_count || 0,
         reputation_score: userData?.reputation_score || 0,
         streak_days: stats.streak_days || 0,

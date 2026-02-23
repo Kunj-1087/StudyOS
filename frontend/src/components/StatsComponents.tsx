@@ -1,5 +1,14 @@
-export function SkillBar({ name, level, importance }) {
-    const levelColors = {
+
+import React from 'react';
+
+interface SkillBarProps {
+    name: string;
+    level: 'beginner' | 'intermediate' | 'advanced' | 'expert' | string;
+    importance: number;
+}
+
+export function SkillBar({ name, level, importance }: SkillBarProps) {
+    const levelColors: Record<string, string> = {
         beginner: 'from-green-500 to-green-400',
         intermediate: 'from-primary to-cyan-400',
         advanced: 'from-yellow-500 to-orange-400',
@@ -22,7 +31,14 @@ export function SkillBar({ name, level, importance }) {
     );
 }
 
-export function StatBlock({ label, value, icon: Icon, color = 'text-primary' }) {
+interface StatBlockProps {
+    label: string;
+    value: string | number;
+    icon?: React.ElementType;
+    color?: string;
+}
+
+export function StatBlock({ label, value, icon: Icon, color = 'text-primary' }: StatBlockProps) {
     return (
         <div className="stat-block p-4 bg-white/[0.02] border border-white/5 rounded-sm">
             <div className="flex items-center gap-2 mb-2">
@@ -34,7 +50,14 @@ export function StatBlock({ label, value, icon: Icon, color = 'text-primary' }) 
     );
 }
 
-export function ProgressRing({ percentage, size = 120, strokeWidth = 8, color = '#00C2FF' }) {
+interface ProgressRingProps {
+    percentage: number;
+    size?: number;
+    strokeWidth?: number;
+    color?: string;
+}
+
+export function ProgressRing({ percentage, size = 120, strokeWidth = 8, color = '#00C2FF' }: ProgressRingProps) {
     const radius = (size - strokeWidth) / 2;
     const circumference = radius * 2 * Math.PI;
     const offset = circumference - (percentage / 100) * circumference;
@@ -75,7 +98,12 @@ export function ProgressRing({ percentage, size = 120, strokeWidth = 8, color = 
     );
 }
 
-export function ActivityGraph({ data }) {
+interface ActivityItem {
+    date: string;
+    activity: number;
+}
+
+export function ActivityGraph({ data }: { data: ActivityItem[] }) {
     const maxActivity = Math.max(...data.map(d => d.activity), 1);
 
     return (

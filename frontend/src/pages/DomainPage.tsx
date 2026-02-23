@@ -27,7 +27,8 @@ const iconMap = {
 export default function DomainPage() {
     const { slug } = useParams();
     const navigate = useNavigate();
-    const { isAuthenticated } = useAuth();
+    const { user } = useAuth();
+    const isAuthenticated = !!user;
     const [domain, setDomain] = useState(null);
     const [loading, setLoading] = useState(true);
     const [starting, setStarting] = useState(false);
@@ -221,6 +222,67 @@ export default function DomainPage() {
                                             >
                                                 <Briefcase className="w-4 h-4 text-primary flex-shrink-0" />
                                                 <span className="text-sm text-white">{app}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </section>
+                            )}
+
+                            {/* Market Intelligence */}
+                             {domain.market_data && (
+                                <section className="data-card p-0 overflow-hidden">
+                                    <div className="bg-primary/5 px-6 py-3 border-b border-primary/10 flex items-center justify-between">
+                                        <div className="section-title mb-0">Market Intelligence</div>
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                                            <span className="font-mono text-[10px] text-primary/70 uppercase">Live Signal</span>
+                                        </div>
+                                    </div>
+                                    <div className="p-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div className="space-y-4">
+                                                <div>
+                                                    <div className="font-mono text-[10px] text-muted-foreground uppercase mb-1">Demand Trend</div>
+                                                    <div className="text-xl text-white font-heading">{domain.market_data.demand_trend}</div>
+                                                </div>
+                                                <div>
+                                                    <div className="font-mono text-[10px] text-muted-foreground uppercase mb-1">YoY Growth</div>
+                                                    <div className="text-xl text-secondary font-heading">{domain.market_data.yoy_growth}</div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div className="font-mono text-[10px] text-muted-foreground uppercase mb-1">Top Hiring Vectors</div>
+                                                <div className="flex flex-wrap gap-2 mt-2">
+                                                    {(domain.market_data.top_hiring || []).map((company, i) => (
+                                                        <span key={i} className="px-2 py-1 bg-white/5 border border-white/10 rounded-sm text-xs text-white/80">
+                                                            {company}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            )}
+
+                            {/* Strategic Project Paths */}
+                            {domain.project_paths && domain.project_paths.length > 0 && (
+                                <section className="data-card p-6">
+                                    <div className="section-title">Strategic Project Paths</div>
+                                    <div className="grid grid-cols-1 gap-4">
+                                        {domain.project_paths.map((project, idx) => (
+                                            <div key={idx} className="group p-4 bg-white/[0.02] border border-white/5 rounded-sm hover:border-primary/30 transition-all duration-300">
+                                                <div className="flex items-start justify-between mb-2">
+                                                    <h4 className="text-white font-heading group-hover:text-primary transition-colors">{project.title}</h4>
+                                                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono border ${
+                                                        project.difficulty === 'Advanced' ? 'text-accent border-accent/30 bg-accent/5' :
+                                                        project.difficulty === 'Expert' ? 'text-red-400 border-red-400/30 bg-red-400/5' :
+                                                        'text-secondary border-secondary/30 bg-secondary/5'
+                                                    }`}>
+                                                        {project.difficulty}
+                                                    </span>
+                                                </div>
+                                                <p className="text-sm text-muted-foreground">{project.description}</p>
                                             </div>
                                         ))}
                                     </div>

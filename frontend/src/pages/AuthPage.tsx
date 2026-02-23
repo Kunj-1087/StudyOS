@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
+import { supabase } from "../lib/supabase"
 
 type AuthMode = "login" | "register"
 
 export default function AuthPage() {
-    const { signIn, signUp, signInWithGoogle, user, loading } = useAuth()
+    const { signIn, signUp, signInWithGoogle, user, loading, resendVerification } = useAuth()
     const navigate = useNavigate()
 
     const [mode, setMode] = useState<AuthMode>("login")
@@ -18,6 +19,7 @@ export default function AuthPage() {
     const [error, setError] = useState<string | null>(null)
     const [success, setSuccess] = useState<string | null>(null)
     const [needsConfirmation, setNeedsConfirmation] = useState(false)
+    const [resendSuccess, setResendSuccess] = useState(false)
 
     // Redirect if already logged in
     useEffect(() => {
@@ -30,15 +32,18 @@ export default function AuthPage() {
         setError(null)
         setSuccess(null)
         setNeedsConfirmation(false)
+        setResendSuccess(false)
     }
 
-    const switchMode = (newMode: AuthMode) => {
+    const switchMode = (newMode: AuthMode, clearFields = true) => {
         setMode(newMode)
         resetForm()
-        setEmail("")
-        setPassword("")
-        setConfirmPassword("")
-        setFullName("")
+        if (clearFields) {
+            setEmail("")
+            setPassword("")
+            setConfirmPassword("")
+            setFullName("")
+        }
     }
 
     const validateForm = (): string | null => {
@@ -62,6 +67,51 @@ export default function AuthPage() {
         return null
     }
 
+    const [backendStatus, setBackendStatus] = useState<"online" | "offline" | "checking">("checking")
+    const [supabaseStatus, setSupabaseStatus] = useState<"online" | "offline" | "checking">("checking")
+
+    // Check system health on mount
+    useEffect(() => {
+        const checkHealth = async () => {
+            try {
+                // Check Backend
+                const res = await fetch("/api/health")
+                if (res.ok) setBackendStatus("online")
+                else setBackendStatus("offline")
+            } catch {
+                setBackendStatus("offline")
+            }
+
+            try {
+                // Check Supabase - more robust check
+                const { error } = await supabase.auth.getSession()
+                // A null error means connectivity is good, regardless of session presence
+                if (error === null) {
+                    setSupabaseStatus("online")
+                } else {
+                    console.warn("[AuthPage] Supabase connectivity check error:", error)
+                    setSupabaseStatus("offline")
+                }
+            } catch (err) {
+                console.error("[AuthPage] Supabase health check exception:", err)
+                setSupabaseStatus("offline")
+            }
+        }
+        checkHealth()
+    }, [])
+
+    const handleResendLink = async () => {
+        setIsSubmitting(true)
+        const result = await resendVerification(email)
+        if (result.success) {
+            setResendSuccess(true)
+            setSuccess("A new activation link has been dispatched to your inbox.")
+        } else {
+            setError(result.error)
+        }
+        setIsSubmitting(false)
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         resetForm()
@@ -73,45 +123,29 @@ export default function AuthPage() {
         }
 
         setIsSubmitting(true)
+        console.log(`[AuthPage] Starting ${mode} flow for ${email}`)
 
         try {
             if (mode === "login") {
-                console.log("[AuthPage] Attempting login with:", email)
-
                 const result = await signIn(email, password)
-
-                console.log("[AuthPage] Login result:", result)
-
                 if (result.success) {
-                    setSuccess("Login successful! Redirecting...")
-                    setTimeout(() => navigate("/dashboard", { replace: true }), 500)
-                } else if (result.needsEmailConfirmation) {
-                    setNeedsConfirmation(true)
-                    setError(result.error)
+                    setSuccess("Access Granted. Synchronizing Hub...")
+                    setTimeout(() => navigate("/dashboard", { replace: true }), 800)
                 } else {
-                    setError(result.error || "Login failed. Please try again.")
+                    setError(result.error)
                 }
             } else {
-                console.log("[AuthPage] Attempting registration with:", email)
-
                 const result = await signUp(email, password, fullName)
-
-                console.log("[AuthPage] Registration result:", result)
-
-                if (result.success && result.needsEmailConfirmation) {
-                    setNeedsConfirmation(true)
-                    setSuccess(
-                        "Account created! Please check your email and click the confirmation link before logging in."
-                    )
-                } else if (result.success) {
-                    setSuccess(
-                        "Account created successfully! You can now log in."
-                    )
-                    setTimeout(() => switchMode("login"), 2000)
+                if (result.success) {
+                    setSuccess("Identity Confirmed. Access Granted.")
+                    setTimeout(() => navigate("/dashboard", { replace: true }), 1000)
                 } else {
-                    setError(result.error || "Registration failed. Please try again.")
+                    setError(result.error)
                 }
             }
+        } catch (err: any) {
+            console.error("[AuthPage] Critical error:", err)
+            setError(`Systemic error: ${err.message || "Unknown Failure"}.`)
         } finally {
             setIsSubmitting(false)
         }
@@ -121,28 +155,48 @@ export default function AuthPage() {
         return (
             <div className="min-h-screen bg-[#0D0F14] flex items-center justify-center">
                 <div className="text-[#00C2FF] font-mono text-lg animate-pulse tracking-widest">
-                    INITIALIZING SYSTEM...
+                    SYNCHRONIZING AUTH STATE...
                 </div>
             </div>
         )
     }
 
     return (
-        <div className="min-h-screen bg-[#0D0F14] flex items-center justify-center p-4">
+        <div className="min-h-screen bg-[#0D0F14] flex flex-col items-center justify-center p-4">
+            
+            {/* System Status Indicators */}
+            <div className="flex gap-4 mb-8 font-mono text-[10px] tracking-widest">
+                <div className="flex items-center gap-2">
+                    <span className={`w-1.5 h-1.5 rounded-full ${supabaseStatus === "online" ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" : "bg-red-500 animate-pulse"}`} />
+                    <span className={supabaseStatus === "online" ? "text-green-500/80" : "text-red-500"}>SUPABASE: {supabaseStatus.toUpperCase()}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <span className={`w-1.5 h-1.5 rounded-full ${backendStatus === "online" ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" : "bg-red-500 animate-pulse"}`} />
+                    <span className={backendStatus === "online" ? "text-green-500/80" : "text-red-500"}>API: {backendStatus.toUpperCase()}</span>
+                </div>
+            </div>
+
             <div className="w-full max-w-md">
 
                 {/* Logo */}
                 <div className="text-center mb-10">
-                    <h1 className="text-3xl font-mono font-bold text-[#00C2FF] tracking-widest uppercase">
-                        STUDYOS
-                    </h1>
-                    <p className="text-[#8B9CB3] text-sm mt-2 tracking-wider">
-                        Academic Intelligence System
-                    </p>
+                    <button 
+                        onClick={() => navigate("/")}
+                        className="group hover:opacity-80 transition-opacity"
+                    >
+                        <h1 className="text-3xl font-mono font-bold text-[#00C2FF] tracking-widest uppercase group-hover:drop-shadow-[0_0_8px_rgba(0,194,255,0.4)]">
+                            STUDYOS
+                        </h1>
+                        <p className="text-[#8B9CB3] text-sm mt-2 tracking-wider">
+                            Academic Intelligence System
+                        </p>
+                    </button>
                 </div>
 
                 {/* Card */}
-                <div className="bg-[#1A1D24] border border-[#2A2D35] rounded-2xl p-8">
+                <div className="bg-[#1A1D24] border border-[#2A2D35] rounded-2xl p-8 relative overflow-hidden">
+                    {/* Decorative Scanner Line */}
+                    <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#00C2FF] to-transparent animate-[scan_2s_linear_infinite]" />
 
                     {/* Tabs */}
                     <div className="flex mb-8 bg-[#0D0F14] rounded-lg p-1">
@@ -151,7 +205,7 @@ export default function AuthPage() {
                             onClick={() => switchMode("login")}
                             className={`flex-1 py-2 text-sm font-mono tracking-wider uppercase rounded-md transition-all duration-200 ${
                                 mode === "login"
-                                    ? "bg-[#00C2FF] text-black font-bold"
+                                    ? "bg-[#00C2FF] text-black font-bold shadow-[0_0_15px_rgba(0,194,255,0.4)]"
                                     : "text-[#8B9CB3] hover:text-white"
                             }`}
                         >
@@ -162,7 +216,7 @@ export default function AuthPage() {
                             onClick={() => switchMode("register")}
                             className={`flex-1 py-2 text-sm font-mono tracking-wider uppercase rounded-md transition-all duration-200 ${
                                 mode === "register"
-                                    ? "bg-[#00C2FF] text-black font-bold"
+                                    ? "bg-[#00C2FF] text-black font-bold shadow-[0_0_15px_rgba(0,194,255,0.4)]"
                                     : "text-[#8B9CB3] hover:text-white"
                             }`}
                         >
@@ -170,32 +224,19 @@ export default function AuthPage() {
                         </button>
                     </div>
 
-                    {/* Email Confirmation Notice */}
-                    {needsConfirmation && (
-                        <div className="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
-                            <p className="text-yellow-400 text-sm font-mono">
-                                📧 CHECK YOUR EMAIL
-                            </p>
-                            <p className="text-yellow-300/80 text-xs mt-1">
-                                A confirmation link has been sent to {email}.
-                                Click it before trying to log in.
-                            </p>
-                        </div>
-                    )}
-
                     {/* Error Message */}
-                    {error && !needsConfirmation && (
+                    {error && (
                         <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex items-start gap-3">
-                            <span className="text-red-400 text-lg">✕</span>
-                            <p className="text-red-400 text-sm">{error}</p>
+                            <span className="text-red-400 text-lg mt-0.5">✕</span>
+                            <p className="text-red-400 text-sm font-mono leading-relaxed">{error}</p>
                         </div>
                     )}
 
                     {/* Success Message */}
                     {success && (
-                        <div className="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-lg flex items-start gap-3">
-                            <span className="text-green-400 text-lg">✓</span>
-                            <p className="text-green-400 text-sm">{success}</p>
+                        <div className="mb-6 p-4 bg-[#16F2A5]/10 border border-[#16F2A5]/30 rounded-lg flex items-start gap-3">
+                            <span className="text-[#16F2A5] text-lg mt-0.5">✓</span>
+                            <p className="text-[#16F2A5] text-sm font-mono leading-relaxed">{success}</p>
                         </div>
                     )}
 

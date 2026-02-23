@@ -2,13 +2,13 @@
 
 /* ── Logo ── */
 .logo-glow {
-    display: block;
-    filter: drop-shadow(0 0 6px rgba(0, 194, 255, 0.5));
-    transition: filter 0.3s ease;
+  display: block;
+  filter: drop-shadow(0 0 6px rgba(0, 194, 255, 0.5));
+  transition: filter 0.3s ease;
 }
 
 .logo-glow:hover {
-    filter: drop-shadow(0 0 12px rgba(0, 194, 255, 0.85));
+  filter: drop-shadow(0 0 12px rgba(0, 194, 255, 0.85));
 }
 
 /* Landing Page Hero */
@@ -444,6 +444,20 @@
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes scan {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(400px);
+    opacity: 0;
   }
 }
 

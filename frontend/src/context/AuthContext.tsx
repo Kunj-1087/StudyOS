@@ -13,6 +13,7 @@ import { supabase } from "../lib/supabase"
 interface AuthContextType {
   user: User | null
   session: Session | null
+  profile: any | null
   loading: boolean
   signUp: (
     email: string,
@@ -24,8 +25,11 @@ interface AuthContextType {
     password: string
   ) => Promise<AuthResult>
   signOut: () => Promise<void>
+  logout: () => Promise<void>
+  isAuthenticated: boolean
   signInWithGoogle: () => Promise<void>
   resetPassword: (email: string) => Promise<AuthResult>
+  resendVerification: (email: string) => Promise<AuthResult>
 }
 
 interface AuthResult {
@@ -41,7 +45,26 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [session, setSession] = useState<Session | null>(null)
+  const [profile, setProfile] = useState<any | null>(null)
   const [loading, setLoading] = useState(true)
+
+  const fetchProfile = useCallback(async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", userId)
+        .maybeSingle()
+      
+      if (data) {
+        setProfile(data)
+      } else if (error) {
+        console.warn("[Auth] Profile fetch error:", error)
+      }
+    } catch (err) {
+      console.error("[Auth] Profile fetch failed:", err)
+    }
+  }, [])
 
   // Initialize auth state from existing session
   useEffect(() => {
@@ -82,12 +105,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (mounted) {
           setSession(currentSession)
           setUser(currentSession?.user ?? null)
+          if (!currentSession?.user) {
+            setProfile(null)
+          }
           setLoading(false)
         }
 
+        if (currentSession?.user && event === "SIGNED_IN") {
+          fetchProfile(currentSession.user.id)
+        }
+
         // Handle specific auth events
-        if (event === "SIGNED_IN") {
-          console.log("[Auth] User signed in:", currentSession?.user?.email)
+        if (event === "SIGNED_IN" && currentSession?.user) {
+          console.log("[Auth] User signed in:", currentSession.user.email)
+          ensureUserProfile(currentSession.user.id, currentSession.user.email!)
         }
 
         if (event === "SIGNED_OUT") {
@@ -114,171 +145,111 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // ─── SIGN UP ───────────────────────────────────────
   const signUp = useCallback(
-    async (
-      email: string,
-      password: string,
-      fullName: string
-    ): Promise<AuthResult> => {
+    async (email: string, password: string, fullName: string): Promise<AuthResult> => {
+      setLoading(true)
+      const normalizedEmail = email.toLowerCase().trim()
+      
       try {
-        console.log("[Auth] Attempting signup for:", email)
-
-        // Normalize email to lowercase
-        const normalizedEmail = email.toLowerCase().trim()
-        const trimmedPassword = password
-
-        if (!normalizedEmail || !trimmedPassword) {
-          return {
-            success: false,
-            error: "Email and password are required.",
-          }
-        }
-
-        if (trimmedPassword.length < 6) {
-          return {
-            success: false,
-            error: "Password must be at least 6 characters.",
-          }
-        }
-
-        const { data, error } = await supabase.auth.signUp({
-          email: normalizedEmail,
-          password: trimmedPassword,
-          options: {
-            data: {
-              full_name: fullName.trim(),
-            },
-          },
+        console.log("[Auth] Initializing Instant Access for:", normalizedEmail)
+        
+        // 1. Force identity creation/healing via backend
+        const accessRes = await fetch("/api/auth/instant-access", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: normalizedEmail, password, fullName }),
         })
 
-        if (error) {
-          console.error("[Auth] Signup error:", error)
-          return {
-            success: false,
-            error: parseAuthError(error),
-          }
+        if (!accessRes.ok) {
+           const errData = await accessRes.json()
+           throw new Error(errData.detail || "Identity initialization failed")
         }
 
-        // Check if email confirmation is required
-        if (
-          data.user &&
-          !data.session &&
-          !data.user.email_confirmed_at
-        ) {
-          console.log("[Auth] Email confirmation required")
-          return {
-            success: true,
-            error: null,
-            needsEmailConfirmation: true,
-          }
+        // 2. Perform direct Supabase Login
+        console.log("[Auth] Identity ready. Performing direct entry...")
+        await new Promise(r => setTimeout(r, 1000)) // Wait for propagation
+        
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: normalizedEmail,
+          password: password,
+        })
+
+        if (error) throw error
+
+        if (data.user && data.session) {
+          setUser(data.user)
+          setSession(data.session)
+          await fetchProfile(data.user.id)
+          setLoading(false)
+          return { success: true, error: null }
         }
 
-        // Create profile in public.users table
-        if (data.user) {
-          await createUserProfile(
-            data.user.id,
-            normalizedEmail,
-            fullName.trim()
-          )
-        }
-
-        console.log("[Auth] Signup successful:", data.user?.email)
-        return { success: true, error: null }
-      } catch (err) {
-        console.error("[Auth] Unexpected signup error:", err)
-        return {
-          success: false,
-          error: "An unexpected error occurred. Please try again.",
-        }
+        throw new Error("Session establishment failed")
+      } catch (err: any) {
+        console.error("[Auth] Access failed:", err)
+        setLoading(false)
+        return { success: false, error: parseAuthError(err) }
       }
     },
-    []
+    [fetchProfile]
   )
 
   // ─── SIGN IN ───────────────────────────────────────
   const signIn = useCallback(
     async (email: string, password: string): Promise<AuthResult> => {
+      setLoading(true)
+      const normalizedEmail = email.toLowerCase().trim()
+
       try {
-        console.log("[Auth] Attempting login for:", email)
-
-        // IMPORTANT: Normalize email exactly as done during signup
-        const normalizedEmail = email.toLowerCase().trim()
-        // IMPORTANT: Do NOT trim or modify password
-        const rawPassword = password
-
-        if (!normalizedEmail || !rawPassword) {
-          return {
-            success: false,
-            error: "Email and password are required.",
-          }
-        }
-
-        // MUST use signInWithPassword for Supabase v2
+        console.log("[Auth] Direct Entry protocol initiated for:", normalizedEmail)
+        
+        // 1. Try standard login first
         const { data, error } = await supabase.auth.signInWithPassword({
           email: normalizedEmail,
-          password: rawPassword,
+          password,
         })
 
-        if (error) {
-          console.error("[Auth] Login error code:", error.status)
-          console.error("[Auth] Login error message:", error.message)
-
-          // Handle specific error cases
-          if (
-            error.message.includes("Email not confirmed") ||
-            error.message.includes("email_not_confirmed")
-          ) {
-            return {
-              success: false,
-              error:
-                "Please confirm your email first. Check your inbox for a confirmation link.",
-              needsEmailConfirmation: true,
-            }
-          }
-
-          if (
-            error.message.includes("Invalid login credentials") ||
-            error.message.includes("invalid_credentials") ||
-            error.status === 400
-          ) {
-            return {
-              success: false,
-              error:
-                "Incorrect email or password. Please check your credentials and try again.",
-            }
-          }
-
-          return {
-            success: false,
-            error: parseAuthError(error),
-          }
+        if (!error && data.session) {
+          setUser(data.user)
+          setSession(data.session)
+          if (data.user) await fetchProfile(data.user.id)
+          setLoading(false)
+          return { success: true, error: null }
         }
 
-        if (!data.session) {
-          return {
-            success: false,
-            error:
-              "Login failed. Please confirm your email address first.",
-            needsEmailConfirmation: true,
-          }
+        // 2. Failure? Trigger Instant Healing then retry
+        console.warn("[Auth] Standard entry failed. Activating Instant Healing...")
+        const fixRes = await fetch("/api/auth/instant-access", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: normalizedEmail, password }),
+        })
+
+        if (fixRes.ok) {
+           console.log("[Auth] Identity healed. Synchronizing...")
+           await new Promise(r => setTimeout(r, 1200))
+           const retry = await supabase.auth.signInWithPassword({
+             email: normalizedEmail,
+             password,
+           })
+
+           if (!retry.error && retry.data.session) {
+              setUser(retry.data.user)
+              setSession(retry.data.session)
+              if (retry.data.user) await fetchProfile(retry.data.user.id)
+              setLoading(false)
+              return { success: true, error: null }
+           }
+           if (retry.error) throw retry.error
         }
 
-        console.log("[Auth] Login successful:", data.user?.email)
-
-        // Ensure profile exists after login
-        if (data.user) {
-          await ensureUserProfile(data.user.id, data.user.email!)
-        }
-
-        return { success: true, error: null }
-      } catch (err) {
-        console.error("[Auth] Unexpected login error:", err)
-        return {
-          success: false,
-          error: "An unexpected error occurred. Please try again.",
-        }
+        throw error || new Error("Authentication failed")
+      } catch (err: any) {
+        console.error("[Auth] Access denied:", err)
+        setLoading(false)
+        return { success: false, error: parseAuthError(err) }
       }
     },
-    []
+    [fetchProfile]
   )
 
   // ─── SIGN OUT ──────────────────────────────────────
@@ -334,15 +305,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     []
   )
 
+  // ─── RESEND VERIFICATION ───────────────────────────
+  const resendVerification = useCallback(
+    async (email: string): Promise<AuthResult> => {
+      try {
+        const { error } = await supabase.auth.resend({
+          type: "signup",
+          email: email.toLowerCase().trim(),
+        })
+
+        if (error) {
+          return { success: false, error: parseAuthError(error) }
+        }
+
+        return { success: true, error: null }
+      } catch (err) {
+        return {
+          success: false,
+          error: "Failed to resend link. Try again.",
+        }
+      }
+    },
+    []
+  )
+
   const value: AuthContextType = {
     user,
     session,
+    profile,
     loading,
+    isAuthenticated: !!user,
     signUp,
     signIn,
     signOut,
+    logout: signOut,
     signInWithGoogle,
     resetPassword,
+    resendVerification,
   }
 
   return (
@@ -372,12 +371,12 @@ async function createUserProfile(
       {
         id: userId,
         email: email,
-        full_name: fullName,
+        name: fullName,
         role: "student",
-        domains_enrolled: 0,
-        resources_contributed: 0,
+        contribution_count: 0,
         reputation_score: 0,
-        streak_days: 0,
+        skill_index: 0.0,
+        execution_score: 0.0,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       },
@@ -420,14 +419,15 @@ function parseAuthError(error: AuthError): string {
     message.includes("invalid login credentials") ||
     message.includes("invalid_credentials")
   ) {
-    return "Incorrect email or password. Please try again."
+    return "Incorrect email or password. Verify your credentials."
   }
 
   if (
     message.includes("email not confirmed") ||
-    message.includes("email_not_confirmed")
+    message.includes("email_not_confirmed") ||
+    error.status === 400 && message.includes("not confirmed")
   ) {
-    return "Please confirm your email. Check your inbox."
+    return "IDENTITY UNVERIFIED: Check your email for the activation link."
   }
 
   if (message.includes("user already registered")) {
@@ -443,12 +443,17 @@ function parseAuthError(error: AuthError): string {
   }
 
   if (message.includes("email rate limit exceeded")) {
-    return "Too many attempts. Please wait a few minutes and try again."
+    return "Too many attempts. Please wait a few minutes."
   }
 
   if (message.includes("network") || message.includes("fetch")) {
-    return "Network error. Please check your internet connection."
+    return "COMM LINK FAILURE: Unable to reach the Authentication Server."
   }
 
-  return error.message || "Authentication failed. Please try again."
+  // If it's a 400 but we didn't catch specific text, show more detail
+  if (error.status === 400) {
+    return `Access Denied: ${error.message}`
+  }
+
+  return error.message || "Authentication failed. System rejected the request."
 }

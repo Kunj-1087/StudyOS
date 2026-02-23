@@ -103,97 +103,60 @@ DOMAINS_DATA = [
     {
         "slug": "ai",
         "name": "Artificial Intelligence",
-        "description": "Building intelligent systems that can reason, learn, and act autonomously across diverse problem domains.",
+        "description": "The command-layer for the intelligence revolution. From foundational neural networks to state-of-the-art Large Language Models (LLMs) and Agentic Systems.",
         "icon": "Brain",
-        "market_demand": 95,
+        "market_demand": 98,
         "difficulty_index": 85,
         "time_to_competency": "12-18 months",
         "avg_salary_min": 120000,
-        "avg_salary_max": 250000,
-        "overview": "Artificial Intelligence encompasses the development of systems capable of performing tasks that typically require human intelligence. This includes reasoning, problem-solving, perception, and language understanding.",
-        "why_it_matters": "AI is transforming every industry from healthcare to transportation. Companies are investing billions in AI capabilities, creating an unprecedented demand for skilled practitioners who can build and deploy intelligent systems.",
+        "avg_salary_max": 350000,
+        "overview": "Artificial Intelligence is the definitive technology of our era. It involves building systems capable of performing tasks that typically require human intelligence, such as visual perception, speech recognition, decision-making, and language translation. The current landscape is dominated by Transformer architectures and generative AI.",
+        "why_it_matters": "AI is no longer a sub-field of CS; it's a global structural shift. Every industry is being re-engineered around 'Intelligence as a Service'. Being an AI operator in 2026 means being at the helm of the most high-leverage tools in human history.",
         "core_concepts": [
-            "Machine Learning Fundamentals",
-            "Neural Networks & Deep Learning",
-            "Natural Language Processing",
-            "Computer Vision",
-            "Reinforcement Learning",
-            "AI Ethics & Safety"
+            "Neural Network Architectures",
+            "Transformer Models (LLMs)",
+            "Prompt Engineering & Orchestration",
+            "Reinforcement Learning from Human Feedback (RLHF)",
+            "Vector Databases & RAG",
+            "Agentic Workflows"
         ],
         "required_skills": [
-            {"name": "Python", "level": "advanced", "importance": 98},
-            {"name": "Linear Algebra", "level": "advanced", "importance": 92},
-            {"name": "PyTorch/TensorFlow", "level": "advanced", "importance": 90},
-            {"name": "Statistics & Probability", "level": "advanced", "importance": 88},
-            {"name": "Cloud ML Platforms", "level": "intermediate", "importance": 75}
+            {"name": "Python Mastery", "level": "advanced", "importance": 100},
+            {"name": "PyTorch/TensorFlow", "level": "advanced", "importance": 95},
+            {"name": "Linear Algebra & Calc", "level": "advanced", "importance": 90},
+            {"name": "API Design & Integration", "level": "intermediate", "importance": 85},
+            {"name": "Data Engineering", "level": "intermediate", "importance": 80}
         ],
         "tool_stack": [
-            {"name": "PyTorch", "category": "Framework", "icon": "Flame"},
-            {"name": "Hugging Face", "category": "NLP", "icon": "MessageSquare"},
-            {"name": "OpenAI API", "category": "LLMs", "icon": "Sparkles"},
-            {"name": "Weights & Biases", "category": "MLOps", "icon": "Activity"},
-            {"name": "CUDA", "category": "GPU Computing", "icon": "Cpu"}
+            {"name": "PyTorch", "category": "Deep Learning", "icon": "Settings", "purpose": "Primary framework for neural network development", "learn_url": "https://pytorch.org"},
+            {"name": "Hugging Face", "category": "Model Hub", "icon": "Globe", "purpose": "Accessing pre-trained models and datasets", "learn_url": "https://huggingface.co"},
+            {"name": "Pinecone", "category": "Vector DB", "icon": "Database", "purpose": "Storage and retrieval for RAG systems", "learn_url": "https://pinecone.io"},
+            {"name": "LangChain", "category": "Orchestration", "icon": "Zap", "purpose": "Building complex AI agents and workflows", "learn_url": "https://langchain.com"},
+            {"name": "Weights & Biases", "category": "MLOps", "icon": "Activity", "purpose": "Experiment tracking and model visualization", "learn_url": "https://wandb.ai"}
         ],
         "industry_applications": [
-            "Autonomous Vehicles (Tesla, Waymo)",
-            "Healthcare Diagnostics",
-            "Conversational AI (ChatGPT, Claude)",
-            "Recommendation Systems",
-            "Robotics & Automation"
+            "Autonomous Agents & Personal Assistants",
+            "Generative Content & Media Production",
+            "Predictive Healthcare & Drug Discovery",
+            "Algorithmic Trading & Hyper-personalized Finance",
+            "Smart Infrastructure & Energy Management"
         ],
         "execution_strategy": [
-            {"step": 1, "title": "Math Foundation", "duration": "2 months", "tasks": ["Linear algebra", "Calculus", "Probability & statistics"]},
-            {"step": 2, "title": "ML Basics", "duration": "3 months", "tasks": ["Supervised learning", "Unsupervised learning", "Model evaluation"]},
-            {"step": 3, "title": "Deep Learning", "duration": "4 months", "tasks": ["Neural networks", "CNNs/RNNs", "Transformers"]},
-            {"step": 4, "title": "Specialization", "duration": "4 months", "tasks": ["Choose domain (NLP/CV)", "Build projects", "Deploy models"]}
-        ]
-    },
-    {
-        "slug": "machine-learning",
-        "name": "Machine Learning",
-        "description": "Engineering systems that automatically learn and improve from experience without being explicitly programmed.",
-        "icon": "Cpu",
-        "market_demand": 93,
-        "difficulty_index": 80,
-        "time_to_competency": "10-14 months",
-        "avg_salary_min": 110000,
-        "avg_salary_max": 220000,
-        "overview": "Machine Learning is the science of getting computers to act without being explicitly programmed. It focuses on algorithms that learn patterns from data to make predictions or decisions.",
-        "why_it_matters": "ML powers everything from spam filters to self-driving cars. It's the practical engine behind AI applications and represents one of the most in-demand technical skills globally.",
-        "core_concepts": [
-            "Supervised Learning",
-            "Unsupervised Learning",
-            "Feature Engineering",
-            "Model Selection & Validation",
-            "Ensemble Methods",
-            "Gradient Descent Optimization"
+            {"step": 1, "title": "The Mathematical Base", "duration": "3 months", "tasks": ["Linear Algebra & Multivariable Calculus", "Probability & Statistics", "Information Theory basics"]},
+            {"step": 2, "title": "Deep Learning Core", "duration": "4 months", "tasks": ["Backpropagation from scratch", "CNNs & RNNs", "PyTorch fundamentals"]},
+            {"step": 3, "title": "Modern AI Stack", "duration": "5 months", "tasks": ["Transformers & Attention mechanics", "LLM fine-tuning", "RAG architectures"]},
+            {"step": 4, "title": "Agentic Execution", "duration": "4 months", "tasks": ["Agent frameworks (CrewAI, LangGraph)", "Multi-agent systems", "Deployment & Scaling"]}
         ],
-        "required_skills": [
-            {"name": "Python", "level": "advanced", "importance": 98},
-            {"name": "scikit-learn", "level": "advanced", "importance": 95},
-            {"name": "Statistics", "level": "advanced", "importance": 90},
-            {"name": "pandas/NumPy", "level": "advanced", "importance": 92},
-            {"name": "SQL", "level": "intermediate", "importance": 78}
-        ],
-        "tool_stack": [
-            {"name": "scikit-learn", "category": "ML Library", "icon": "Settings"},
-            {"name": "XGBoost", "category": "Boosting", "icon": "Zap"},
-            {"name": "Jupyter", "category": "Development", "icon": "BookOpen"},
-            {"name": "MLflow", "category": "Experiment Tracking", "icon": "GitBranch"},
-            {"name": "Docker", "category": "Deployment", "icon": "Box"}
-        ],
-        "industry_applications": [
-            "Fraud Detection Systems",
-            "Recommendation Engines",
-            "Predictive Maintenance",
-            "Customer Churn Prediction",
-            "Price Optimization"
-        ],
-        "execution_strategy": [
-            {"step": 1, "title": "Python & Math", "duration": "2 months", "tasks": ["Python mastery", "Statistics fundamentals", "Linear algebra basics"]},
-            {"step": 2, "title": "Core ML", "duration": "3 months", "tasks": ["Classification algorithms", "Regression models", "Clustering"]},
-            {"step": 3, "title": "Advanced", "duration": "3 months", "tasks": ["Ensemble methods", "Feature engineering", "Hyperparameter tuning"]},
-            {"step": 4, "title": "Production", "duration": "3 months", "tasks": ["Model deployment", "MLOps basics", "Real-world projects"]}
+        "market_data": {
+            "demand_trend": "Exponentially Rising",
+            "top_hiring": ["OpenAI", "Anthropic", "Google DeepMind", "Meta AI", "NVIDIA"],
+            "yoy_growth": "42%",
+            "roles": ["Research Engineer", "MLOps Architect", "AI Security Specialist", "Prompt Engineer"]
+        },
+        "project_paths": [
+            {"title": "Custom GPT with RAG", "difficulty": "Intermediate", "description": "Build a domain-specific assistant that queries your private документы."},
+            {"title": "Autonomous Coding Agent", "difficulty": "Advanced", "description": "An agent that can write, test, and deploy code independently."},
+            {"title": "Multi-Modal Analysis Pipeline", "difficulty": "Expert", "description": "A system that processes video, audio, and text to generate tactical insights."}
         ]
     },
     {

@@ -15,20 +15,9 @@ const api = axios.create({
 
 // Add token to requests
 api.interceptors.request.use(async (config) => {
-    // Try getting token from Supabase session
-    try {
-        const { supabase } = await import('./supabase');
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.access_token) {
-            config.headers.Authorization = `Bearer ${session.access_token}`;
-        }
-    } catch (e) {
-        // Fallback to localStorage if supabase fails
-        const token = localStorage.getItem('studyos_token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-    }
+    // Internal Project - Always Authenticated
+    const token = localStorage.getItem('studyos_token') || 'internal-token';
+    config.headers.Authorization = `Bearer ${token}`;
     return config;
 }, (error) => {
     return Promise.reject(error);

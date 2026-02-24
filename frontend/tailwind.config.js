@@ -7,12 +7,23 @@ module.exports = {
   ],
   theme: {
   	extend: {
+      backgroundImage: {
+        'gradient-primary': 'linear-gradient(135deg, #C8F400, #00FF87)',
+      },
+      fontFamily: {
+        display: ['Outfit', 'sans-serif'],
+        drama: ['Instrument Serif', 'serif'],
+        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+        body: ['Inter', 'Inter Tight', 'sans-serif'],
+      },
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		colors: {
+        warning: '#FFB800',
+        ring2: '#C8F40033',
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {

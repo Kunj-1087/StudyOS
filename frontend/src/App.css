@@ -3,12 +3,12 @@
 /* ── Logo ── */
 .logo-glow {
   display: block;
-  filter: drop-shadow(0 0 6px rgba(0, 194, 255, 0.5));
+  filter: drop-shadow(0 0 6px rgba(200, 244, 0, 0.5));
   transition: filter 0.3s ease;
 }
 
 .logo-glow:hover {
-  filter: drop-shadow(0 0 12px rgba(0, 194, 255, 0.85));
+  filter: drop-shadow(0 0 12px rgba(200, 244, 0, 0.85));
 }
 
 /* Landing Page Hero */
@@ -28,23 +28,23 @@
   background:
     radial-gradient(
       ellipse at 30% 20%,
-      rgba(0, 194, 255, 0.1) 0%,
+      rgba(200, 244, 0, 0.1) 0%,
       transparent 50%
     ),
     radial-gradient(
       ellipse at 70% 80%,
-      rgba(22, 242, 165, 0.05) 0%,
+      rgba(0, 255, 135, 0.05) 0%,
       transparent 50%
     ),
-    linear-gradient(180deg, #0d0f14 0%, #13161c 100%);
+    linear-gradient(180deg, #080A06 0%, #0D110C 100%);
 }
 
 .hero-grid {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(0, 194, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 194, 255, 0.05) 1px, transparent 1px);
+    linear-gradient(rgba(200, 244, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(200, 244, 0, 0.05) 1px, transparent 1px);
   background-size: 60px 60px;
   mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
 }
@@ -90,7 +90,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #16f2a5;
+  background: #00FF87;
   animation: pulse-dot 2s ease-in-out infinite;
 }
 
@@ -98,11 +98,11 @@
   0%,
   100% {
     opacity: 1;
-    box-shadow: 0 0 0 0 rgba(22, 242, 165, 0.5);
+    box-shadow: 0 0 0 0 rgba(0, 255, 135, 0.5);
   }
   50% {
     opacity: 0.8;
-    box-shadow: 0 0 0 8px rgba(22, 242, 165, 0);
+    box-shadow: 0 0 0 8px rgba(0, 255, 135, 0);
   }
 }
 
@@ -134,7 +134,7 @@
 }
 
 .difficulty-segment.active {
-  background: #00c2ff;
+  background: #C8F400;
 }
 
 .difficulty-segment.active.high {
@@ -164,7 +164,7 @@
 
 .demand-circle-progress {
   fill: none;
-  stroke: #00c2ff;
+  stroke: #C8F400;
   stroke-width: 4;
   stroke-linecap: round;
   transition: stroke-dashoffset 0.5s ease;
@@ -232,8 +232,8 @@
 }
 
 .tool-item:hover {
-  background: rgba(0, 194, 255, 0.05);
-  border-color: rgba(0, 194, 255, 0.2);
+  background: rgba(200, 244, 0, 0.05);
+  border-color: rgba(200, 244, 0, 0.2);
 }
 
 .tool-icon {
@@ -242,9 +242,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 194, 255, 0.1);
+  background: rgba(200, 244, 0, 0.1);
   border-radius: 2px;
-  color: #00c2ff;
+  color: #C8F400;
 }
 
 .tool-info {
@@ -278,7 +278,7 @@
   top: 8px;
   bottom: 8px;
   width: 2px;
-  background: linear-gradient(180deg, #00c2ff 0%, #16f2a5 100%);
+  background: linear-gradient(180deg, #C8F400 0%, #00FF87 100%);
 }
 
 .timeline-step {
@@ -297,14 +297,14 @@
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #0d0f14;
-  border: 2px solid #00c2ff;
+  background: #080A06;
+  border: 2px solid #C8F400;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: "JetBrains Mono", monospace;
   font-size: 10px;
-  color: #00c2ff;
+  color: #C8F400;
 }
 
 /* Profile Stats Grid */
@@ -330,7 +330,7 @@
 
 .activity-bar {
   flex: 1;
-  background: linear-gradient(180deg, #00c2ff 0%, rgba(0, 194, 255, 0.3) 100%);
+  background: linear-gradient(180deg, #C8F400 0%, rgba(200, 244, 0, 0.3) 100%);
   border-radius: 2px 2px 0 0;
   transition: height 0.3s ease;
 }
@@ -390,14 +390,14 @@
 }
 
 .category-tab.active {
-  color: #00c2ff;
-  background: rgba(0, 194, 255, 0.1);
-  border-color: rgba(0, 194, 255, 0.3);
+  color: #C8F400;
+  background: rgba(200, 244, 0, 0.1);
+  border-color: rgba(200, 244, 0, 0.3);
 }
 
 /* Auth Modal */
 .auth-modal {
-  background: #13161c;
+  background: #0D110C;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 4px;
   padding: 2rem;
@@ -427,16 +427,16 @@
 }
 
 .auth-tab.active {
-  color: #00c2ff;
-  border-bottom: 2px solid #00c2ff;
+  color: #C8F400;
+  border-bottom: 2px solid #C8F400;
 }
 
 /* Loading Spinner */
 .spinner {
   width: 24px;
   height: 24px;
-  border: 2px solid rgba(0, 194, 255, 0.2);
-  border-top-color: #00c2ff;
+  border: 2px solid rgba(200, 244, 0, 0.2);
+  border-top-color: #C8F400;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -464,6 +464,6 @@
 /* Toast overrides for sonner */
 [data-sonner-toast] {
   font-family: "JetBrains Mono", monospace !important;
-  background: #13161c !important;
+  background: #0D110C !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
